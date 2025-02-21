@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+  run:
+    desc: 'run locally'
+    cmds:
+      - APP_ENV=local go run ./cmd/main.go
+  build:
+    desc: "build in .exe"
+    cmds:
+      - go build -o visualizer.exe ./cmd/main.go

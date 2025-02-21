@@ -36,7 +36,7 @@ func main() {
 	svc := service.New(log, service.Deps{
 		Repo: repo,
 	})
-	h := handler.New(log, svc)
+	h := handler.New(log, svc, cfg.Origin)
 
 	srv := server.New(log, cfg.Server, h.Init())
 

@@ -1,14 +1,29 @@
 package repository
 
 import (
+	"context"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"log/slog"
+	"visualizer-go/internal/dto"
+	"visualizer-go/internal/models"
 )
 
 type (
-	Repository struct{}
+	Template interface {
+		GetAll(ctx context.Context) ([]models.Template, error)
+		GetByID(ctx context.Context, templateID uuid.UUID) (models.Template, error)
+		Create(ctx context.Context, dto dto.TemplateCreateDto) error
+		Update(ctx context.Context, templateID uuid.UUID, dto dto.TemplateUpdateDto) error
+	}
+
+	Repository struct {
+		Template
+	}
 )
 
 func New(log *slog.Logger, db *sqlx.DB) *Repository {
-	return &Repository{}
+	return &Repository{
+		Template: NewTemplateRepo(log, db),
+	}
 }

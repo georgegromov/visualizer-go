@@ -8,7 +8,7 @@ import (
 type User struct {
 	ID           uuid.UUID `json:"id" db:"id"`
 	Username     string    `json:"username" db:"username"`
-	PasswordHash string    `json:"password_hash" db:"password_hash"`
+	PasswordHash string    `json:"-" db:"password_hash"`
 	Role         string    `json:"role" db:"role"`
 	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
 	CreatedAt    time.Time `json:"created_at" db:"created_at"`

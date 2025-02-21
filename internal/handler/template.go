@@ -11,13 +11,13 @@ import (
 )
 
 var (
-	ErrTemplateIDMissing      = errors.New("template ID is missing")
-	ErrInvalidTemplateID      = errors.New("invalid template ID format")
-	ErrFailedToFetchTemplates = errors.New("failed to fetch templates")
-	ErrTemplateNotFound       = errors.New("template not found")
-	ErrFailedToCreateTemplate = errors.New("failed to create template")
-	ErrInvalidRequestData     = errors.New("invalid request data")
-	ErrFailedToUpdateTemplate = errors.New("failed to update template")
+	ErrTemplateIDMissing          = errors.New("template ID is missing")
+	ErrInvalidTemplateID          = errors.New("invalid template ID format")
+	ErrFailedToFetchTemplates     = errors.New("failed to fetch templates")
+	ErrTemplateNotFound           = errors.New("template not found")
+	ErrFailedToCreateTemplate     = errors.New("failed to create template")
+	ErrTemplateInvalidRequestData = errors.New("invalid template request data")
+	ErrFailedToUpdateTemplate     = errors.New("failed to update template")
 )
 
 func (h *Handler) getAllTemplates(c *gin.Context) {
@@ -45,14 +45,14 @@ func (h *Handler) getTemplateByID(c *gin.Context) {
 
 	templateID, err := uuid.Parse(templateIDStr)
 	if err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrInvalidTemplateID))
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrInvalidTemplateID.Error(), err)
 		return
 	}
 
 	template, err := h.services.Template.GetByID(c.Request.Context(), templateID)
 	if err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrTemplateNotFound))
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusNotFound, ErrTemplateNotFound.Error(), err)
 		return
 	}
@@ -65,13 +65,13 @@ func (h *Handler) createTemplate(c *gin.Context) {
 
 	var templateCreateDto dto.TemplateCreateDto
 	if err := c.ShouldBindJSON(&templateCreateDto); err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrInvalidRequestData))
-		response.Error(c, http.StatusBadRequest, ErrInvalidRequestData.Error(), err)
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusBadRequest, ErrTemplateInvalidRequestData.Error(), err)
 		return
 	}
 
 	if err := h.services.Template.Create(c.Request.Context(), templateCreateDto); err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrFailedToCreateTemplate))
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToCreateTemplate.Error(), err)
 		return
 	}
@@ -91,20 +91,20 @@ func (h *Handler) updateTemplate(c *gin.Context) {
 
 	templateID, err := uuid.Parse(templateIDStr)
 	if err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrInvalidTemplateID))
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrInvalidTemplateID.Error(), err)
 		return
 	}
 
 	var templateUpdateDto dto.TemplateUpdateDto
 	if err = c.ShouldBindJSON(&templateUpdateDto); err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrInvalidRequestData))
-		response.Error(c, http.StatusBadRequest, ErrInvalidRequestData.Error(), err)
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusBadRequest, ErrTemplateInvalidRequestData.Error(), err)
 		return
 	}
 
 	if err = h.services.Template.Update(c.Request.Context(), templateID, templateUpdateDto); err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrFailedToUpdateTemplate))
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToUpdateTemplate.Error(), err)
 		return
 	}

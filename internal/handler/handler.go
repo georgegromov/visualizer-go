@@ -33,15 +33,30 @@ func (h *Handler) Init() *gin.Engine {
 			ctx.String(http.StatusOK, "ok")
 		})
 
-		templates := api.Group("/templates")
+		auth := api.Group("/auth")
 		{
-			templates.POST("", h.createTemplate)
-			templates.GET("", h.getAllTemplates)
-			templates.GET("/:id", h.getTemplateByID)
-			templates.PATCH("/:id", h.updateTemplate)
+			auth.POST("/login", h.login)
+		}
+
+		protected := api.Group("")
+
+		protected.Use(middlewares.AuthMiddleware(h.log))
+		{
+			users := protected.Group("/users")
+			{
+				users.POST("", h.createUser)
+				users.PATCH("/:id", h.updateUser)
+			}
+
+			templates := protected.Group("/templates")
+			{
+				templates.POST("", h.createTemplate)
+				templates.GET("", h.getAllTemplates)
+				templates.GET("/:id", h.getTemplateByID)
+				templates.PATCH("/:id", h.updateTemplate)
+			}
 		}
 
 	}
-
 	return handler
 }

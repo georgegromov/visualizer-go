@@ -70,13 +70,14 @@ func (h *Handler) createTemplate(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.Template.Create(c.Request.Context(), templateCreateDto); err != nil {
+	templateID, err := h.services.Template.Create(c.Request.Context(), templateCreateDto)
+	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToCreateTemplate.Error(), err)
 		return
 	}
 
-	response.Success(c, http.StatusCreated, "Template created successfully", nil)
+	response.Success(c, http.StatusCreated, "Template created successfully", templateID)
 }
 
 func (h *Handler) updateTemplate(c *gin.Context) {

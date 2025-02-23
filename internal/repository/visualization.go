@@ -1,0 +1,149 @@
+package repository
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+	"log/slog"
+	"strings"
+	"visualizer-go/internal/dto"
+	"visualizer-go/internal/models"
+)
+
+var (
+	ErrVisualizationNotFound       = errors.New("visualization not found")
+	ErrVisualizationsNotFound      = errors.New("visualizations not found")
+	ErrFailedToCreateVisualization = errors.New("failed to create visualization")
+	ErrFailedToUpdateVisualization = errors.New("failed to update visualization")
+)
+
+// TODO: УБРАТЬ OP из возврата ошибок
+
+type VisualizationRepo struct {
+	log *slog.Logger
+	db  *sqlx.DB
+}
+
+func NewVisualizationRepo(log *slog.Logger, db *sqlx.DB) *VisualizationRepo {
+	return &VisualizationRepo{log: log, db: db}
+}
+
+func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Visualization, error) {
+	const op = "repository.VisualizationRepo.GetAll"
+
+	var visualizations []models.Visualization
+	err := r.db.SelectContext(ctx, &visualizations, "SELECT id, name, description, client, is_published, share_url, updated_at, created_at, user_id FROM visualizations ORDER BY updated_at DESC")
+	if err != nil {
+		r.log.Error(fmt.Sprintf("%s: %s", op, err))
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%w", ErrVisualizationsNotFound)
+		}
+		return nil, fmt.Errorf("failed to get visualizations")
+	}
+
+	return visualizations, nil
+}
+
+func (r *VisualizationRepo) GetByID(ctx context.Context, visualizationID uuid.UUID) (models.Visualization, error) {
+	const op = "repository.VisualizationRepo.GetByID"
+
+	var visualization models.Visualization
+	err := r.db.GetContext(ctx, &visualization, "SELECT * FROM visualizations WHERE id = $1", visualizationID)
+	if err != nil {
+		r.log.Error(fmt.Sprintf("%s: %s", op, err))
+		if errors.Is(err, sql.ErrNoRows) {
+			return visualization, fmt.Errorf("%w", ErrVisualizationNotFound)
+		}
+		return visualization, fmt.Errorf("failed to get visualization by ID")
+	}
+
+	return visualization, nil
+}
+
+func (r *VisualizationRepo) GetByShareID(ctx context.Context, shareID uuid.UUID) (models.Visualization, error) {
+	const op = "repository.VisualizationRepo.GetByShareID"
+
+	var visualization models.Visualization
+	err := r.db.GetContext(ctx, &visualization, "SELECT * FROM visualizations WHERE share_url = $1 AND is_published = TRUE", shareID)
+	if err != nil {
+		r.log.Error(fmt.Sprintf("%s: %s", op, err))
+		if errors.Is(err, sql.ErrNoRows) {
+			return visualization, fmt.Errorf("%w", ErrVisualizationNotFound)
+		}
+		return visualization, fmt.Errorf("failed to get visualization")
+	}
+	return visualization, nil
+}
+
+func (r *VisualizationRepo) Create(ctx context.Context, dto dto.VisualizationCreateDto) (uuid.UUID, error) {
+	const op = "repository.VisualizationRepo.Create"
+
+	var visualizationID uuid.UUID
+	err := r.db.GetContext(ctx, &visualizationID, "INSERT INTO visualizations (name, description, client, user_id) VALUES ($1, $2, $3, $4) RETURNING id",
+		dto.Name, dto.Description, dto.Client, dto.UserID)
+	if err != nil {
+		r.log.Error(fmt.Sprintf("%s: %s", op, err))
+		return uuid.Nil, fmt.Errorf("%w", ErrFailedToCreateVisualization)
+	}
+
+	return visualizationID, nil
+}
+
+func (r *VisualizationRepo) Update(ctx context.Context, visualizationID uuid.UUID, dto dto.VisualizationUpdateDto) error {
+	const op = "repository.VisualizationRepo.Update"
+
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
+
+	if dto.Name != nil {
+		setValues = append(setValues, fmt.Sprintf("name=$%d", argId))
+		args = append(args, *dto.Name)
+		argId++
+	}
+
+	if dto.Description != nil {
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
+		args = append(args, *dto.Description)
+		argId++
+	}
+
+	if dto.Client != nil {
+		setValues = append(setValues, fmt.Sprintf("client=$%d", argId))
+		args = append(args, *dto.Client)
+		argId++
+	}
+
+	if dto.IsPublished != nil {
+		setValues = append(setValues, fmt.Sprintf("is_published=$%d", argId))
+		args = append(args, *dto.IsPublished)
+		argId++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+
+	q := fmt.Sprintf("UPDATE visualizations SET %s WHERE id=$%d", setQuery, argId)
+	args = append(args, visualizationID)
+
+	if _, err := r.db.ExecContext(ctx, q, args...); err != nil {
+		r.log.Error(fmt.Sprintf("%s: %s", op, err))
+		return fmt.Errorf("%w", ErrFailedToUpdateVisualization)
+	}
+
+	return nil
+}
+
+func (r *VisualizationRepo) Delete(ctx context.Context, visualizationID uuid.UUID) error {
+	const op = "repository.VisualizationRepo.Delete"
+
+	_, err := r.db.ExecContext(ctx, "DELETE FROM visualizations WHERE id = $1", visualizationID)
+	if err != nil {
+		r.log.Error(fmt.Sprintf("%s: %v", op, err))
+		return fmt.Errorf("failed to delete visualization")
+	}
+
+	return nil
+}

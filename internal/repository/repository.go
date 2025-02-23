@@ -13,7 +13,7 @@ type (
 	Template interface {
 		GetAll(ctx context.Context) ([]models.Template, error)
 		GetByID(ctx context.Context, templateID uuid.UUID) (models.Template, error)
-		Create(ctx context.Context, dto dto.TemplateCreateDto) error
+		Create(ctx context.Context, dto dto.TemplateCreateDto) (uuid.UUID, error)
 		Update(ctx context.Context, templateID uuid.UUID, dto dto.TemplateUpdateDto) error
 	}
 
@@ -24,15 +24,26 @@ type (
 		Update(ctx context.Context, userID uuid.UUID, dto dto.UserUpdateDto) error
 	}
 
+	Visualization interface {
+		GetAll(ctx context.Context) ([]models.Visualization, error)
+		GetByID(ctx context.Context, visualizationID uuid.UUID) (models.Visualization, error)
+		GetByShareID(ctx context.Context, shareID uuid.UUID) (models.Visualization, error)
+		Create(ctx context.Context, dto dto.VisualizationCreateDto) (uuid.UUID, error)
+		Update(ctx context.Context, visualizationID uuid.UUID, dto dto.VisualizationUpdateDto) error
+		Delete(ctx context.Context, visualizationID uuid.UUID) error
+	}
+
 	Repository struct {
 		Template
 		User
+		Visualization
 	}
 )
 
 func New(log *slog.Logger, db *sqlx.DB) *Repository {
 	return &Repository{
-		Template: NewTemplateRepo(log, db),
-		User:     NewUserRepo(log, db),
+		Template:      NewTemplateRepo(log, db),
+		User:          NewUserRepo(log, db),
+		Visualization: NewVisualizationRepo(log, db),
 	}
 }

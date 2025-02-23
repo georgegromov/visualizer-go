@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/lib/response"
+	"visualizer-go/internal/repository"
 )
 
 var (
@@ -29,17 +30,44 @@ func (h *Handler) login(ctx *gin.Context) {
 		return
 	}
 
-	user, token, err := h.services.Login(ctx.Request.Context(), userLoginDto)
+	user, _, err := h.services.Login(ctx.Request.Context(), userLoginDto)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(ctx, http.StatusBadRequest, err.Error(), err)
+		response.Error(ctx, http.StatusBadRequest, err.Error(), repository.ErrInvalidCredentials.Error())
 		return
 	}
 
 	response.Success(ctx, http.StatusOK, "Logged in successfully", gin.H{
 		"user":  user,
-		"token": token,
+		"token": "test_token_123",
 	})
+}
+
+func (h *Handler) getUserByID(ctx *gin.Context) {
+	const op = "handler.getUserByID"
+
+	userIDStr := ctx.Param("id")
+	if userIDStr == "" {
+		h.log.Error(fmt.Sprintf("%s: %v", op, ErrUserIDMissing))
+		response.Error(ctx, http.StatusBadRequest, ErrUserIDMissing.Error(), ErrUserIDMissing.Error())
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(ctx, http.StatusBadRequest, ErrInvalidUserIDFormat.Error(), ErrInvalidUserIDFormat.Error())
+		return
+	}
+
+	user, err := h.services.User.GetByID(ctx, userID)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(ctx, http.StatusInternalServerError, ErrUserNotFound.Error(), ErrUserNotFound.Error())
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "User fetched successfully", user)
 }
 
 func (h *Handler) createUser(ctx *gin.Context) {

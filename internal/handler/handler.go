@@ -39,11 +39,11 @@ func (h *Handler) Init() *gin.Engine {
 		}
 
 		protected := api.Group("")
-
 		protected.Use(middlewares.AuthMiddleware(h.log))
 		{
 			users := protected.Group("/users")
 			{
+				users.GET("/:id", h.getUserByID)
 				users.POST("", h.createUser)
 				users.PATCH("/:id", h.updateUser)
 			}
@@ -54,6 +54,16 @@ func (h *Handler) Init() *gin.Engine {
 				templates.GET("", h.getAllTemplates)
 				templates.GET("/:id", h.getTemplateByID)
 				templates.PATCH("/:id", h.updateTemplate)
+			}
+
+			visualizations := protected.Group("/visualizations")
+			{
+				visualizations.POST("", h.createVisualization)
+				visualizations.GET("", h.getAllVisualizations)
+				visualizations.GET("/:id", h.getVisualizationByID)
+				visualizations.GET("/share/:id", h.getVisualizationByShareID)
+				visualizations.PATCH("/:id", h.updateVisualization)
+				visualizations.DELETE("/:id", h.deleteVisualization)
 			}
 		}
 

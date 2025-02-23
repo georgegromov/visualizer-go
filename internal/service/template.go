@@ -29,7 +29,7 @@ func (ts *TemplateService) GetByID(ctx context.Context, templateID uuid.UUID) (m
 	const op = "service.TemplateService.GetByID"
 	return ts.repo.GetByID(ctx, templateID)
 }
-func (ts *TemplateService) Create(ctx context.Context, dto dto.TemplateCreateDto) error {
+func (ts *TemplateService) Create(ctx context.Context, dto dto.TemplateCreateDto) (uuid.UUID, error) {
 	const op = "service.TemplateService.Create"
 	return ts.repo.Create(ctx, dto)
 }

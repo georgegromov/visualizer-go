@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -61,17 +62,18 @@ func (r *TemplateRepo) GetByID(ctx context.Context, templateID uuid.UUID) (model
 	return template, nil
 }
 
-func (r *TemplateRepo) Create(ctx context.Context, dto dto.TemplateCreateDto) error {
+func (r *TemplateRepo) Create(ctx context.Context, dto dto.TemplateCreateDto) (uuid.UUID, error) {
 	const op = "repository.TemplateRepo.Create"
 
-	_, err := r.db.ExecContext(ctx, "INSERT INTO templates (name, description) VALUES ($1, $2)",
+	var templateID uuid.UUID
+	err := r.db.GetContext(ctx, &templateID, "INSERT INTO templates (name, description) VALUES ($1, $2) RETURNING id",
 		dto.Name, dto.Description)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
-		return fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)
 	}
 
-	return nil
+	return templateID, nil
 }
 
 func (r *TemplateRepo) Update(ctx context.Context, templateID uuid.UUID, dto dto.TemplateUpdateDto) error {
@@ -94,8 +96,14 @@ func (r *TemplateRepo) Update(ctx context.Context, templateID uuid.UUID, dto dto
 	}
 
 	if dto.Canvases != nil {
+		// Преобразуем canvases в строку JSON
+		canvasesJson, err := json.Marshal(dto.Canvases)
+		if err != nil {
+			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
+			return fmt.Errorf("%s: %w", op, ErrFailedToUpdateTemplate)
+		}
 		setValues = append(setValues, fmt.Sprintf("canvases=$%d", argId))
-		args = append(args, *dto.Canvases)
+		args = append(args, canvasesJson)
 		argId++
 	}
 

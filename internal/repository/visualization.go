@@ -3,14 +3,16 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
+
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -35,7 +37,25 @@ func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Visualization,
 	const op = "repository.VisualizationRepo.GetAll"
 
 	var visualizations []models.Visualization
-	err := r.db.SelectContext(ctx, &visualizations, "SELECT id, name, description, client, is_published, share_url, updated_at, created_at, user_id FROM visualizations ORDER BY updated_at DESC")
+
+	query := `
+	SELECT 
+			v.id, 
+			v.name, 
+			v.description,
+			v.client, 
+			v.is_published, 
+			v.share_id, 
+			v.updated_at, 
+			v.created_at, 
+			v.user_id,
+			u.username AS username
+	FROM visualizations v
+	LEFT JOIN users u ON v.user_id = u.id
+	ORDER BY v.updated_at DESC
+	`
+
+	err := r.db.SelectContext(ctx, &visualizations, query)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
@@ -67,7 +87,7 @@ func (r *VisualizationRepo) GetByShareID(ctx context.Context, shareID uuid.UUID)
 	const op = "repository.VisualizationRepo.GetByShareID"
 
 	var visualization models.Visualization
-	err := r.db.GetContext(ctx, &visualization, "SELECT * FROM visualizations WHERE share_url = $1 AND is_published = TRUE", shareID)
+	err := r.db.GetContext(ctx, &visualization, "SELECT * FROM visualizations WHERE share_id = $1 AND is_published = TRUE", shareID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
@@ -99,6 +119,8 @@ func (r *VisualizationRepo) Update(ctx context.Context, visualizationID uuid.UUI
 	args := make([]interface{}, 0)
 	argId := 1
 
+	fmt.Println("dto", dto)
+
 	if dto.Name != nil {
 		setValues = append(setValues, fmt.Sprintf("name=$%d", argId))
 		args = append(args, *dto.Name)
@@ -122,6 +144,37 @@ func (r *VisualizationRepo) Update(ctx context.Context, visualizationID uuid.UUI
 		args = append(args, *dto.IsPublished)
 		argId++
 	}
+
+	if dto.Canvases != nil {
+		canvasesJson, err := json.Marshal(dto.Canvases)
+		if err != nil {
+			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
+			return fmt.Errorf("%s: %w", op, ErrFailedToUpdateVisualization)
+		}
+		setValues = append(setValues, fmt.Sprintf("canvases=$%d", argId))
+		args = append(args, canvasesJson)
+		argId++
+	}
+
+	if dto.TemplateID != nil {
+		setValues = append(setValues, fmt.Sprintf("template_id=$%d", argId))
+		args = append(args, *dto.TemplateID)
+		argId++
+	}
+
+	if dto.Tenant != nil {
+		setValues = append(setValues, fmt.Sprintf("tenant=$%d", argId))
+		args = append(args, *dto.Tenant)
+		argId++
+	}
+
+	setValues = append(setValues, fmt.Sprintf("is_saved=$%d", argId))
+	args = append(args, true)
+	argId++
+
+	setValues = append(setValues, fmt.Sprintf("is_publishable=$%d", argId))
+	args = append(args, true)
+	argId++
 
 	setQuery := strings.Join(setValues, ", ")
 

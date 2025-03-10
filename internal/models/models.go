@@ -1,9 +1,10 @@
 package models
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx/types"
-	"time"
 )
 
 type User struct {
@@ -31,10 +32,14 @@ type Visualization struct {
 	Description *string         `json:"description" db:"description"`
 	Client      *string         `json:"client" db:"client"`
 	IsPublished bool            `json:"is_published" db:"is_published"`
-	ShareURL    uuid.UUID       `json:"share_url" db:"share_url"`
+	ShareID    uuid.UUID       `json:"share_id" db:"share_id"`
 	UpdatedAt   time.Time       `json:"updated_at" db:"updated_at"`
 	CreatedAt   time.Time       `json:"created_at" db:"created_at"`
 	UserID      uuid.UUID       `json:"user_id" db:"user_id"`
 	TemplateID  *uuid.UUID      `json:"template_id" db:"template_id"`
 	Canvases    *types.JSONText `json:"canvases" db:"canvases"`
+	IsSaved bool `json:"is_saved" db:"is_saved"`
+	IsPublishable bool `json:"is_publishable" db:"is_publishable"`
+	Tenant *string `json:"tenant" db:"tenant"`
+	Username    *string         `json:"username" db:"username"`
 }

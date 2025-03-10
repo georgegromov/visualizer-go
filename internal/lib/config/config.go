@@ -41,7 +41,7 @@ type (
 func MustLoad() *Config {
 	appEnv := os.Getenv("APP_ENV")
 	if appEnv == "" {
-		appEnv = "local"
+		appEnv = "local" // заменить на  local
 	}
 
 	configPath := fmt.Sprintf("./configs/%s.yaml", appEnv)

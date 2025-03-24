@@ -49,9 +49,11 @@ func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Visualization,
 			v.updated_at, 
 			v.created_at, 
 			v.user_id,
-			u.username AS username
+			u.username AS username,
+      t.name AS template_name
 	FROM visualizations v
 	LEFT JOIN users u ON v.user_id = u.id
+  LEFT JOIN templates t ON v.template_id = t.id
 	ORDER BY v.updated_at DESC
 	`
 
@@ -175,6 +177,8 @@ func (r *VisualizationRepo) Update(ctx context.Context, visualizationID uuid.UUI
 	setValues = append(setValues, fmt.Sprintf("is_publishable=$%d", argId))
 	args = append(args, true)
 	argId++
+
+	setValues = append(setValues, "updated_at=NOW()")
 
 	setQuery := strings.Join(setValues, ", ")
 

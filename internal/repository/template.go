@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
+
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -34,7 +35,29 @@ func (r *TemplateRepo) GetAll(ctx context.Context) ([]models.Template, error) {
 	const op = "repository.TemplateRepo.GetAll"
 
 	var templates []models.Template
-	err := r.db.SelectContext(ctx, &templates, "SELECT * FROM templates WHERE is_deleted = FALSE ORDER BY updated_at DESC")
+
+	q := `
+  SELECT 
+    t.id,
+    t.name,
+    t.description,
+    t.is_deleted,
+    t.updated_at,
+    t.created_at,
+    COUNT(DISTINCT v.id) AS uses
+  FROM 
+    templates t
+  LEFT JOIN 
+    visualizations v ON v.template_id = t.id
+  WHERE 
+    t.is_deleted = false
+  GROUP BY 
+    t.id, t.name, t.description, t.is_deleted, t.updated_at, t.created_at
+  ORDER BY 
+    t.updated_at DESC;
+    `
+
+	err := r.db.SelectContext(ctx, &templates, q)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
@@ -112,6 +135,8 @@ func (r *TemplateRepo) Update(ctx context.Context, templateID uuid.UUID, dto dto
 		args = append(args, *dto.IsDeleted)
 		argId++
 	}
+
+	setValues = append(setValues, "updated_at=NOW()")
 
 	setQuery := strings.Join(setValues, ", ")
 

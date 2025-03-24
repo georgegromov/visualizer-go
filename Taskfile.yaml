@@ -5,7 +5,11 @@ tasks:
     desc: 'run locally'
     cmds:
       - APP_ENV=local go run ./cmd/main.go
+  rt:
+    desc: 'run with CompileDaemon'
+    cmds:
+      - APP_ENV=local CompileDaemon -include="./cmd" -include="./configs" -include="./internal"
   build:
-    desc: "build in .exe"
+    desc: 'build in .exe'
     cmds:
       - go build -o visualizer.exe ./cmd/main.go

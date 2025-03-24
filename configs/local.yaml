@@ -1,6 +1,6 @@
-env: "local"
+env: 'local'
 
-origin: "http://localhost:5173"
+origin: 'http://localhost:5173'
 
 server:
   host: 'localhost'
@@ -14,8 +14,8 @@ database:
   password: 'root'
   host: 'localhost'
   port: '5432'
-  dbName: 'visualizer-dev-db'
+  dbName: 'visualizer-db'
   SSLMode: 'disable'
 
 jwt:
-  secret: "jwt-secret"
+  secret: 'jwt-secret'

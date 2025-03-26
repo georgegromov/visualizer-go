@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
 	"visualizer-go/internal/middlewares"
 	"visualizer-go/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -60,6 +61,7 @@ func (h *Handler) Init() *gin.Engine {
 			{
 				visualizations.POST("", h.createVisualization)
 				visualizations.GET("", h.getAllVisualizations)
+				visualizations.GET("/t/:id", h.getVisualizationsByTemplateID)
 				visualizations.GET("/:id", h.getVisualizationByID)
 				visualizations.GET("/share/:id", h.getVisualizationByShareID)
 				visualizations.PATCH("/:id", h.updateVisualization)

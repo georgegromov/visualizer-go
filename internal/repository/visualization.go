@@ -45,7 +45,8 @@ func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Visualization,
 			v.description,
 			v.client, 
 			v.is_published, 
-			v.share_id, 
+			v.share_id,
+      v.template_id,
 			v.updated_at, 
 			v.created_at, 
 			v.user_id,
@@ -58,6 +59,32 @@ func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Visualization,
 	`
 
 	err := r.db.SelectContext(ctx, &visualizations, query)
+	if err != nil {
+		r.log.Error(fmt.Sprintf("%s: %s", op, err))
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%w", ErrVisualizationsNotFound)
+		}
+		return nil, fmt.Errorf("failed to get visualizations")
+	}
+
+	return visualizations, nil
+}
+
+func (r *VisualizationRepo) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Visualization, error) {
+	const op = "repository.VisualizationRepo.GetByTemplateID"
+
+	var visualizations []models.Visualization
+
+	query := `
+  SELECT 
+    id, 
+    name
+  FROM visualizations
+  WHERE template_id = $1
+  ORDER BY updated_at DESC;
+  `
+
+	err := r.db.SelectContext(ctx, &visualizations, query, templateID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {

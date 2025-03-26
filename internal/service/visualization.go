@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"log/slog"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
 	"visualizer-go/internal/repository"
+
+	"github.com/google/uuid"
 )
 
 type VisualizationService struct {
@@ -25,6 +26,11 @@ func (vs *VisualizationService) GetAll(ctx context.Context) ([]models.Visualizat
 	const op = "service.VisualizationService.GetAll"
 	return vs.repo.GetAll(ctx)
 }
+func (vs *VisualizationService) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Visualization, error) {
+	const op = "service.VisualizationService.GetByTemplateID"
+	return vs.repo.GetByTemplateID(ctx, templateID)
+}
+
 func (vs *VisualizationService) GetByID(ctx context.Context, visualizationID uuid.UUID) (models.Visualization, error) {
 	const op = "service.VisualizationService.GetByID"
 	return vs.repo.GetByID(ctx, visualizationID)

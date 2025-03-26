@@ -3,11 +3,12 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/lib/response"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var (
@@ -27,6 +28,33 @@ func (h *Handler) getAllVisualizations(c *gin.Context) {
 	const op = "handler.Handler.getAllVisualizations"
 
 	templates, err := h.services.Visualization.GetAll(c.Request.Context())
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusInternalServerError, ErrFailedToFetchVisualizations.Error(), err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Visualizations fetched successfully", templates)
+}
+
+func (h *Handler) getVisualizationsByTemplateID(c *gin.Context) {
+	const op = "handler.Handler.getVisualizationsByTemplateID"
+
+	templateIDStr := c.Param("id")
+	if templateIDStr == "" {
+		h.log.Error(fmt.Sprintf("%s: %v", op, ErrVisualizationIDMissing))
+		response.Error(c, http.StatusBadRequest, ErrVisualizationIDMissing.Error(), nil)
+		return
+	}
+
+	templateID, err := uuid.Parse(templateIDStr)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusBadRequest, ErrInvalidVisualizationID.Error(), err)
+		return
+	}
+
+	templates, err := h.services.Visualization.GetByTemplateID(c.Request.Context(), templateID)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToFetchVisualizations.Error(), err)

@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"log/slog"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
+
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
 type (
@@ -26,6 +27,7 @@ type (
 
 	Visualization interface {
 		GetAll(ctx context.Context) ([]models.Visualization, error)
+		GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Visualization, error)
 		GetByID(ctx context.Context, visualizationID uuid.UUID) (models.Visualization, error)
 		GetByShareID(ctx context.Context, shareID uuid.UUID) (models.Visualization, error)
 		Create(ctx context.Context, dto dto.VisualizationCreateDto) (uuid.UUID, error)

@@ -31,7 +31,7 @@ func NewTemplateRepo(log *slog.Logger, db *sqlx.DB) *TemplateRepo {
 	return &TemplateRepo{log: log, db: db}
 }
 
-func (r *TemplateRepo) GetAll(ctx context.Context) ([]models.Template, error) {
+func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.Template, error) {
 	const op = "repository.TemplateRepo.GetAll"
 
 	var templates []models.Template
@@ -45,6 +45,17 @@ func (r *TemplateRepo) GetAll(ctx context.Context) ([]models.Template, error) {
     t.updated_at,
     t.created_at,
     COUNT(DISTINCT v.id) AS uses
+  `
+
+	// Если нужно выбрать канвасы, добавляем поле canvases в SELECT
+	if withCanvases {
+		q += `,
+    t.canvases
+    `
+	}
+
+	// Добавляем FROM и JOIN для visualizations
+	q += `
   FROM 
     templates t
   LEFT JOIN 
@@ -55,7 +66,7 @@ func (r *TemplateRepo) GetAll(ctx context.Context) ([]models.Template, error) {
     t.id, t.name, t.description, t.is_deleted, t.updated_at, t.created_at
   ORDER BY 
     t.updated_at DESC;
-    `
+  `
 
 	err := r.db.SelectContext(ctx, &templates, q)
 	if err != nil {

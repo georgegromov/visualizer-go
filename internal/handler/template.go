@@ -3,11 +3,12 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/lib/response"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var (
@@ -23,7 +24,14 @@ var (
 func (h *Handler) getAllTemplates(c *gin.Context) {
 	const op = "handler.Handler.GetAllTemplatesHandler"
 
-	templates, err := h.services.Template.GetAll(c.Request.Context())
+	withCanvases := c.DefaultQuery("canvases", "false")
+
+	includeCanvases := false
+	if withCanvases == "true" {
+		includeCanvases = true
+	}
+
+	templates, err := h.services.Template.GetAll(c.Request.Context(), includeCanvases)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToFetchTemplates.Error(), err)

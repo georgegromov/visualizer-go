@@ -57,13 +57,14 @@ func (h *Handler) Init() *gin.Engine {
 				templates.PATCH("/:id", h.updateTemplate)
 			}
 
+      // TODO: переделать в dashboards
 			visualizations := protected.Group("/visualizations")
 			{
 				visualizations.POST("", h.createVisualization)
 				visualizations.GET("", h.getAllVisualizations)
+        // переделать в api/templates/{id}/dashboards
 				visualizations.GET("/t/:id", h.getVisualizationsByTemplateID)
 				visualizations.GET("/:id", h.getVisualizationByID)
-				// visualizations.GET("/share/:id", h.getVisualizationByShareID)
 				visualizations.PATCH("/:id", h.updateVisualization)
 				visualizations.DELETE("/:id", h.deleteVisualization)
 			}

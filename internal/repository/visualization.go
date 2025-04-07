@@ -131,8 +131,20 @@ func (r *VisualizationRepo) Create(ctx context.Context, dto dto.VisualizationCre
 	const op = "repository.VisualizationRepo.Create"
 
 	var visualizationID uuid.UUID
-	err := r.db.GetContext(ctx, &visualizationID, "INSERT INTO visualizations (name, description, client, user_id) VALUES ($1, $2, $3, $4) RETURNING id",
-		dto.Name, dto.Description, dto.Client, dto.UserID)
+
+	// TODO: вынести преобразование на уровень service
+	var canvasesJson []byte
+	var err error
+	if dto.Canvases != nil {
+		canvasesJson, err = json.Marshal(dto.Canvases)
+		if err != nil {
+			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
+			return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)
+		}
+	}
+
+	err = r.db.GetContext(ctx, &visualizationID, "INSERT INTO visualizations (name, description, client, canvases, template_id, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+		dto.Name, dto.Description, dto.Client, canvasesJson, dto.TemplateID, dto.UserID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		return uuid.Nil, fmt.Errorf("%w", ErrFailedToCreateVisualization)

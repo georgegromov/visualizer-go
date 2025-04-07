@@ -63,12 +63,12 @@ func (h *Handler) Init() *gin.Engine {
 				visualizations.GET("", h.getAllVisualizations)
 				visualizations.GET("/t/:id", h.getVisualizationsByTemplateID)
 				visualizations.GET("/:id", h.getVisualizationByID)
-				visualizations.GET("/share/:id", h.getVisualizationByShareID)
+				// visualizations.GET("/share/:id", h.getVisualizationByShareID)
 				visualizations.PATCH("/:id", h.updateVisualization)
 				visualizations.DELETE("/:id", h.deleteVisualization)
 			}
+			api.GET("/visualizations/share/:id", h.getVisualizationByShareID)
 		}
-
 	}
 	return handler
 }

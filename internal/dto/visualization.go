@@ -5,10 +5,12 @@ import (
 )
 
 type VisualizationCreateDto struct {
-	Name        string    `json:"name" db:"name"`
-	Description *string   `json:"description" db:"description"`
-	Client      *string   `json:"client" db:"client"`
-	UserID      uuid.UUID `json:"user_id" db:"user_id"`
+	Name        string       `json:"name" db:"name"`
+	Description *string      `json:"description" db:"description"`
+	Client      *string      `json:"client" db:"client"`
+	Canvases    *interface{} `json:"canvases" db:"canvases"`
+	TemplateID  *uuid.UUID   `json:"templateId" db:"template_id"`
+	UserID      uuid.UUID    `json:"userId" db:"user_id"`
 }
 
 type VisualizationUpdateDto struct {

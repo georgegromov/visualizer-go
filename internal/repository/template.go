@@ -102,7 +102,7 @@ func (r *TemplateRepo) Create(ctx context.Context, dto dto.TemplateCreateDto) (u
 	var templateID uuid.UUID
 
 	// TODO: вынести преобразование на уровень service
-	var canvasesJson []byte
+	var canvasesJson interface{}
 	var err error
 	if dto.Canvases != nil {
 		canvasesJson, err = json.Marshal(dto.Canvases)
@@ -110,6 +110,9 @@ func (r *TemplateRepo) Create(ctx context.Context, dto dto.TemplateCreateDto) (u
 			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
 			return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)
 		}
+	} else {
+		// Если Canvases равно nil, передаем NULL
+		canvasesJson = nil
 	}
 
 	err = r.db.GetContext(ctx, &templateID, "INSERT INTO templates (name, description, canvases) VALUES ($1, $2, $3) RETURNING id",

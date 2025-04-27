@@ -132,22 +132,28 @@ func (r *VisualizationRepo) Create(ctx context.Context, dto dto.VisualizationCre
 
 	var visualizationID uuid.UUID
 
-	// TODO: вынести преобразование на уровень service
-	var canvasesJson []byte
+	// Преобразование поля Canvases в JSON
+	var canvasesJson interface{}
 	var err error
+
+	// Если Canvases не nil, сериализуем в JSON
 	if dto.Canvases != nil {
 		canvasesJson, err = json.Marshal(dto.Canvases)
 		if err != nil {
 			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
-			return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)
+			return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateVisualization)
 		}
+	} else {
+		// Если Canvases равно nil, передаем NULL
+		canvasesJson = nil
 	}
 
-	err = r.db.GetContext(ctx, &visualizationID, "INSERT INTO visualizations (name, description, client, canvases, template_id, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-		dto.Name, dto.Description, dto.Client, canvasesJson, dto.TemplateID, dto.UserID)
+	// Вставка данных в таблицу visualizations
+	err = r.db.GetContext(ctx, &visualizationID, "INSERT INTO visualizations (name, user_id, canvases, template_id) VALUES ($1, $2, $3, $4) RETURNING id",
+		dto.Name, dto.UserID, canvasesJson, dto.TemplateID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
-		return uuid.Nil, fmt.Errorf("%w", ErrFailedToCreateVisualization)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateVisualization)
 	}
 
 	return visualizationID, nil

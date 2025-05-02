@@ -44,4 +44,6 @@ type Visualization struct {
 	IsPublishable bool            `json:"publishable" db:"is_publishable"`
 	Tenant        *string         `json:"tenant" db:"tenant"`
 	Username      *string         `json:"username" db:"username"`
+	ViewCount     int             `json:"viewCount" db:"view_count"`
+	ViewedAt      *time.Time      `json:"viewedAt" db:"viewed_at"`
 }

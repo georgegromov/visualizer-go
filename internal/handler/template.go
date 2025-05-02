@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/lib/response"
 
@@ -24,11 +25,28 @@ var (
 func (h *Handler) getAllTemplates(c *gin.Context) {
 	const op = "handler.Handler.GetAllTemplatesHandler"
 
+	// page := c.DefaultQuery("page", "1")
+	// limit := c.DefaultQuery("limit", "10")
 	withCanvases := c.DefaultQuery("canvases", "false")
 
-	includeCanvases := false
-	if withCanvases == "true" {
-		includeCanvases = true
+	// pageInt, err := strconv.Atoi(page)
+	// if err != nil || pageInt <= 0 {
+	// 	response.Error(c, http.StatusBadRequest, "Invalid page parameter", nil)
+	// 	return
+	// }
+
+	// limitInt, err := strconv.Atoi(limit)
+	// if err != nil || limitInt <= 0 {
+	// 	response.Error(c, http.StatusBadRequest, "Invalid limit parameter", nil)
+	// 	return
+	// }
+
+	// offset := (pageInt - 1) * limitInt
+
+	includeCanvases, err := strconv.ParseBool(withCanvases)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid canvases parameter", nil)
+		return
 	}
 
 	templates, err := h.services.Template.GetAll(c.Request.Context(), includeCanvases)
@@ -38,7 +56,19 @@ func (h *Handler) getAllTemplates(c *gin.Context) {
 		return
 	}
 
+	// pageCount := int(math.Ceil(float64(rowCount) / float64(limitInt)))
+
 	response.Success(c, http.StatusOK, "Templates fetched successfully", templates)
+
+	// response.Success(c, http.StatusOK, "Templates fetched successfully", gin.H{
+	// 	"templates": templates,
+	// 	"pagination": gin.H{
+	// 		"rowCount":    rowCount,
+	// 		"pageCount":   pageCount,
+	// 		"currentPage": pageInt,
+	// 		"limit":       limitInt,
+	// 		"hasMore":     pageInt < pageCount,
+	// 	}})
 }
 
 func (h *Handler) getTemplateByID(c *gin.Context) {

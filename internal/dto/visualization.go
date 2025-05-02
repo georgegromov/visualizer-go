@@ -19,4 +19,5 @@ type VisualizationUpdateDto struct {
 	Canvases    *interface{} `json:"canvases" db:"canvases"`
 	TemplateID  *uuid.UUID   `json:"templateId" db:"template_id"`
 	Tenant      *string      `json:"tenant" db:"tenant"`
+	ViewCount   *uint        `json:"viewCount" db:"view_count"`
 }

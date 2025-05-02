@@ -72,6 +72,7 @@ func (h *Handler) Init() *gin.Engine {
 				visualizations.GET("/t/:id", h.getVisualizationsByTemplateID)
 				visualizations.GET("/:id", h.getVisualizationByID)
 				visualizations.PATCH("/:id", h.updateVisualization)
+				visualizations.PATCH("/:id/metric", h.metric)
 				visualizations.DELETE("/:id", h.deleteVisualization)
 			}
 

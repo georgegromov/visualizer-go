@@ -12,14 +12,15 @@ import (
 )
 
 var (
-	ErrVisualizationIDMissing          = errors.New("visualization ID is missing")
-	ErrInvalidVisualizationID          = errors.New("invalid visualization ID format")
-	ErrFailedToFetchVisualizations     = errors.New("failed to fetch visualization")
-	ErrVisualizationNotFound           = errors.New("visualization not found")
-	ErrFailedToCreateVisualization     = errors.New("failed to create visualization")
-	ErrVisualizationInvalidRequestData = errors.New("invalid visualization request data")
-	ErrFailedToUpdateVisualization     = errors.New("failed to update visualization")
-	ErrFailedToDeleteVisualization     = errors.New("failed to delete visualization")
+	ErrVisualizationIDMissing                  = errors.New("visualization ID is missing")
+	ErrInvalidVisualizationID                  = errors.New("invalid visualization ID format")
+	ErrFailedToFetchVisualizations             = errors.New("failed to fetch visualization")
+	ErrVisualizationNotFound                   = errors.New("visualization not found")
+	ErrFailedToCreateVisualization             = errors.New("failed to create visualization")
+	ErrVisualizationInvalidRequestData         = errors.New("invalid visualization request data")
+	ErrFailedToUpdateVisualization             = errors.New("failed to update visualization")
+	ErrFailedToDeleteVisualization             = errors.New("failed to delete visualization")
+	ErrFailedToIncrementViewCountVisualization = errors.New("failed to increment view count visualization")
 )
 
 // TODO: rename template -> visualization
@@ -169,6 +170,32 @@ func (h *Handler) updateVisualization(c *gin.Context) {
 	}
 
 	response.Success(c, http.StatusOK, "Visualization updated successfully", nil)
+}
+
+func (h *Handler) metric(c *gin.Context) {
+	const op = "handler.Handler.metric"
+
+	templateIDStr := c.Param("id")
+	if templateIDStr == "" {
+		h.log.Error(fmt.Sprintf("%s: %v", op, ErrVisualizationIDMissing))
+		response.Error(c, http.StatusBadRequest, ErrVisualizationIDMissing.Error(), nil)
+		return
+	}
+
+	templateID, err := uuid.Parse(templateIDStr)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusBadRequest, ErrInvalidVisualizationID.Error(), err)
+		return
+	}
+
+	if err = h.services.IncrementViewCount(c.Request.Context(), templateID); err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusInternalServerError, ErrFailedToIncrementViewCountVisualization.Error(), err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "view count incremented", nil)
 }
 
 func (h *Handler) deleteVisualization(c *gin.Context) {

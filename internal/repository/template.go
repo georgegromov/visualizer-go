@@ -35,6 +35,7 @@ func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.
 	const op = "repository.TemplateRepo.GetAll"
 
 	var templates []models.Template
+	// var rowsCount int
 
 	q := `
   SELECT 
@@ -67,6 +68,7 @@ func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.
   ORDER BY 
     t.updated_at DESC;
   `
+	// LIMIT $1 OFFSET $2;
 
 	err := r.db.SelectContext(ctx, &templates, q)
 	if err != nil {
@@ -76,6 +78,18 @@ func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.
 		}
 		return nil, fmt.Errorf("%s: failed to get templates: %w", op, err)
 	}
+
+	// Запрос для подсчета общего количества записей
+	// countQuery := `
+	// SELECT COUNT(*) FROM templates t
+	// WHERE t.is_deleted = false;
+	// `
+
+	// err = r.db.GetContext(ctx, &rowsCount, countQuery)
+	// if err != nil {
+	// 	r.log.Error(fmt.Sprintf("%s: %s", op, err))
+	// 	return nil, 0, fmt.Errorf("%s: failed to get total count: %w", op, err)
+	// }
 
 	return templates, nil
 }

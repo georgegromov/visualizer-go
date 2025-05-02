@@ -32,6 +32,7 @@ type (
 		GetByShareID(ctx context.Context, shareID uuid.UUID) (models.Visualization, error)
 		Create(ctx context.Context, dto dto.VisualizationCreateDto) (uuid.UUID, error)
 		Update(ctx context.Context, visualizationID uuid.UUID, dto dto.VisualizationUpdateDto) error
+    IncrementViewCount(ctx context.Context, visualizationID uuid.UUID) error
 		Delete(ctx context.Context, visualizationID uuid.UUID) error
 	}
 

@@ -16,10 +16,11 @@ import (
 )
 
 var (
-	ErrVisualizationNotFound       = errors.New("visualization not found")
-	ErrVisualizationsNotFound      = errors.New("visualizations not found")
-	ErrFailedToCreateVisualization = errors.New("failed to create visualization")
-	ErrFailedToUpdateVisualization = errors.New("failed to update visualization")
+	ErrVisualizationNotFound                   = errors.New("visualization not found")
+	ErrVisualizationsNotFound                  = errors.New("visualizations not found")
+	ErrFailedToCreateVisualization             = errors.New("failed to create visualization")
+	ErrFailedToUpdateVisualization             = errors.New("failed to update visualization")
+	ErrFailedToIncrementViewCountVisualization = errors.New("failed to increment view count visualization")
 )
 
 // TODO: УБРАТЬ OP из возврата ошибок
@@ -49,6 +50,8 @@ func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Visualization,
       v.template_id,
 			v.updated_at, 
 			v.created_at, 
+      v.view_count,
+      v.viewed_at,
 			v.user_id,
 			u.username AS username,
       t.name AS template_name
@@ -215,6 +218,12 @@ func (r *VisualizationRepo) Update(ctx context.Context, visualizationID uuid.UUI
 		argId++
 	}
 
+	// if dto.ViewCount != nil {
+	// 	setValues = append(setValues, fmt.Sprintf("view_count=$%d", argId))
+	// 	args = append(args, *dto.ViewCount)
+	// 	argId++
+	// }
+
 	setValues = append(setValues, fmt.Sprintf("is_saved=$%d", argId))
 	args = append(args, true)
 	argId++
@@ -233,6 +242,17 @@ func (r *VisualizationRepo) Update(ctx context.Context, visualizationID uuid.UUI
 	if _, err := r.db.ExecContext(ctx, q, args...); err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		return fmt.Errorf("%w", ErrFailedToUpdateVisualization)
+	}
+
+	return nil
+}
+
+func (r *VisualizationRepo) IncrementViewCount(ctx context.Context, visualizationID uuid.UUID) error {
+	const op = "repository.VisualizationRepo.IncrementViewCount"
+
+	if _, err := r.db.ExecContext(ctx, "UPDATE visualizations SET view_count = view_count + 1, viewed_at=NOW() WHERE id = $1", visualizationID); err != nil {
+		r.log.Error(fmt.Sprintf("%s: %s", op, err))
+		return fmt.Errorf("%w", ErrFailedToIncrementViewCountVisualization)
 	}
 
 	return nil

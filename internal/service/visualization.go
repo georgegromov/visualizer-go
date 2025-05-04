@@ -50,6 +50,11 @@ func (vs *VisualizationService) Update(ctx context.Context, visualizationID uuid
 	return vs.repo.Update(ctx, visualizationID, dto)
 }
 
+func (vs *VisualizationService) IncrementViewCount(ctx context.Context, visualizationID uuid.UUID) error {
+	const op = "service.VisualizationService.IncrementViewCount"
+	return vs.repo.IncrementViewCount(ctx, visualizationID)
+}
+
 func (vs *VisualizationService) Delete(ctx context.Context, visualizationID uuid.UUID) error {
 	const op = "service.VisualizationService.Delete"
 	return vs.repo.Delete(ctx, visualizationID)

@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"log/slog"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
 	"visualizer-go/internal/repository"
+
+	"github.com/google/uuid"
 )
 
 type TemplateService struct {

@@ -2,9 +2,10 @@ package postgres
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"log/slog"
-	"visualizer-go/internal/lib/config"
+	"visualizer-go/internal/config"
+
+	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -31,10 +32,14 @@ func MustConnect(log *slog.Logger, cfg config.Database) *sqlx.DB {
 		cfg.Host, cfg.Port, cfg.Username, cfg.DBName, cfg.Password, cfg.SSLMode)
 
 	db, err := sqlx.Open(driverName, dataSourceName)
-
 	if err != nil {
 		panic("failed to connect to database: " + err.Error())
 	}
+
+	// db.SetMaxOpenConns(60)
+	// db.SetConnMaxLifetime(120 * time.Second)
+	// db.SetMaxIdleConns(30)
+	// db.SetConnMaxIdleTime(20 * time.Second)
 
 	if err = db.Ping(); err != nil {
 		panic("failed to ping database: " + err.Error())

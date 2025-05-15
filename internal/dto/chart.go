@@ -8,6 +8,6 @@ type ChartCreateDto struct {
 }
 
 type ChartUpdateDto struct {
-	Name        *string `json:"name" db:"name"`
-	Description *string `json:"description" db:"description"`
+	Name         *string      `json:"name" db:"name"`
+	Measurements *interface{} `json:"measurements" db:"measurements"`
 }

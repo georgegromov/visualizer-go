@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"visualizer-go/internal/dto"
-	"visualizer-go/internal/lib/response"
+	"visualizer-go/internal/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -25,6 +25,11 @@ var (
 
 // TODO: rename template -> visualization
 
+// getDashboards godoc
+//
+// @Summary Get all dashboards
+// @Tags Dashboards
+// @Router /dashboards [get]
 func (h *Handler) getAllVisualizations(c *gin.Context) {
 	const op = "handler.Handler.getAllVisualizations"
 
@@ -38,6 +43,11 @@ func (h *Handler) getAllVisualizations(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Visualizations fetched successfully", templates)
 }
 
+// getDashboardsByTemplateId godoc
+//
+// @Summary Get dashboards by template id
+// @Tags Dashboards
+// @Router /dashboards/t/{id} [get]
 func (h *Handler) getVisualizationsByTemplateID(c *gin.Context) {
 	const op = "handler.Handler.getVisualizationsByTemplateID"
 
@@ -65,6 +75,11 @@ func (h *Handler) getVisualizationsByTemplateID(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Visualizations fetched successfully", templates)
 }
 
+// getDashboardById godoc
+//
+// @Summary Get dashboard by id
+// @Tags Dashboards
+// @Router /dashboards/{id} [get]
 func (h *Handler) getVisualizationByID(c *gin.Context) {
 	const op = "handler.Handler.getVisualizationByID"
 
@@ -92,6 +107,11 @@ func (h *Handler) getVisualizationByID(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Visualization fetched successfully", template)
 }
 
+// getDashboardByShareId godoc
+//
+// @Summary Get dashboard by share id
+// @Tags Dashboards
+// @Router /dashboards/share/{id} [get]
 func (h *Handler) getVisualizationByShareID(c *gin.Context) {
 	const op = "handler.Handler.getVisualizationByShareID"
 
@@ -119,6 +139,11 @@ func (h *Handler) getVisualizationByShareID(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Visualization fetched successfully", template)
 }
 
+// createDashboard godoc
+//
+// @Summary Create dashboard
+// @Tags Dashboards
+// @Router /dashboards [post]
 func (h *Handler) createVisualization(c *gin.Context) {
 	const op = "handler.Handler.createVisualization"
 
@@ -139,6 +164,11 @@ func (h *Handler) createVisualization(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "Visualization created successfully", templateID)
 }
 
+// updateDashboard godoc
+//
+// @Summary Update dashboard
+// @Tags Dashboards
+// @Router /dashboards [patch]
 func (h *Handler) updateVisualization(c *gin.Context) {
 	const op = "handler.Handler.updateVisualization"
 
@@ -172,6 +202,11 @@ func (h *Handler) updateVisualization(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Visualization updated successfully", nil)
 }
 
+// metrichDashboard godoc
+//
+// @Summary Metric dashboard
+// @Tags Dashboards
+// @Router /dashboards/{id}/metric [patch]
 func (h *Handler) metric(c *gin.Context) {
 	const op = "handler.Handler.metric"
 
@@ -198,6 +233,12 @@ func (h *Handler) metric(c *gin.Context) {
 	response.Success(c, http.StatusOK, "view count incremented", nil)
 }
 
+
+// deleteDashboard godoc
+//
+// @Summary Delete dashboard
+// @Tags Dashboards
+// @Router /dashboards/{id} [delete]
 func (h *Handler) deleteVisualization(c *gin.Context) {
 	const op = "handler.Handler.deleteVisualization"
 

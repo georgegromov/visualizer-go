@@ -2,11 +2,12 @@ package middlewares
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
 	"strings"
-	"visualizer-go/internal/lib/response"
+	"visualizer-go/internal/response"
+
+	"github.com/gin-gonic/gin"
 )
 
 func AuthMiddleware(log *slog.Logger) gin.HandlerFunc {

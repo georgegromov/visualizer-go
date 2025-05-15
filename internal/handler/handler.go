@@ -7,6 +7,8 @@ import (
 	"visualizer-go/internal/service"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -24,12 +26,12 @@ func New(log *slog.Logger, service *service.Service, origin string) *Handler {
 }
 
 func (h *Handler) Init() *gin.Engine {
-	handler := gin.New()
+	g := gin.New()
 
-	handler.Use(gin.Recovery(), gin.Logger(), middlewares.CorsMiddleware(h.origin))
+	g.Use(gin.Recovery(), gin.Logger(), middlewares.CorsMiddleware(h.origin))
 
 	// define group route /api
-	api := handler.Group("/api")
+	api := g.Group("/api")
 	{
 		// get /api/status
 		api.GET("/status", func(ctx *gin.Context) {
@@ -39,7 +41,7 @@ func (h *Handler) Init() *gin.Engine {
 		// define group route /api/auth
 		auth := api.Group("/auth")
 		{
-			auth.POST("/login", h.login)
+			auth.POST("/login", h.handleLogin)
 		}
 
 		// define group route protected
@@ -49,9 +51,9 @@ func (h *Handler) Init() *gin.Engine {
 			// define user group route /api/users
 			users := protected.Group("/users")
 			{
-				users.GET("/:id", h.getUserByID)
-				users.POST("", h.createUser)
-				users.PATCH("/:id", h.updateUser)
+				users.GET("/:id", h.handleGetUserByID)
+				users.POST("", h.handleCreateUser)
+				users.PATCH("/:id", h.handleUpdateUser)
 			}
 			// define user group route /api/templates
 			templates := protected.Group("/templates")
@@ -98,5 +100,13 @@ func (h *Handler) Init() *gin.Engine {
 			api.GET("/dashboards/share/:id", h.getVisualizationByShareID)
 		}
 	}
-	return handler
+
+	g.GET("/swagger/*any", func(ctx *gin.Context) {
+		if ctx.Request.RequestURI == "/swagger/" {
+			ctx.Redirect(302, "/swagger/index.html")
+		}
+		ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("http://localhost:8888/swagger/doc.json"))(ctx)
+	})
+
+	return g
 }

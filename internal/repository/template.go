@@ -30,7 +30,7 @@ func NewTemplateRepo(log *slog.Logger, db *sqlx.DB) *TemplateRepo {
 	return &TemplateRepo{log: log, db: db}
 }
 
-func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.Template, error) {
+func (r *TemplateRepo) GetAll(ctx context.Context) ([]models.Template, error) {
 	const op = "repository.TemplateRepo.GetAll"
 
 	var templates []models.Template
@@ -43,7 +43,20 @@ func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.
     t.is_deleted,
     t.updated_at,
     t.created_at,
-    COUNT(DISTINCT v.id) AS uses
+    COUNT(DISTINCT d.id) AS uses
+  `
+
+	q += `
+  FROM 
+    templates t
+  LEFT JOIN 
+    dashboards d ON d.template_id = t.id
+  WHERE 
+    t.is_deleted = false
+  GROUP BY 
+    t.id, t.name, t.description, t.is_deleted, t.updated_at, t.created_at
+  ORDER BY 
+    t.updated_at DESC;
   `
 
 	err := r.db.SelectContext(ctx, &templates, q)

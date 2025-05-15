@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
+	"strings"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
 
@@ -20,6 +22,7 @@ func NewChartRepo(log *slog.Logger, db *sqlx.DB) *ChartRepo {
 	return &ChartRepo{log: log, db: db}
 }
 
+// Get By Canvas ID
 func (c *ChartRepo) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]models.Chart, error) {
 	const op = "repository.ChartRepo.GetByCanvasID"
 
@@ -34,6 +37,8 @@ func (c *ChartRepo) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]mo
 
 	return charts, nil
 }
+
+// Create
 func (c *ChartRepo) Create(ctx context.Context, dto dto.ChartCreateDto) error {
 	const op = "repository.ChartRepo.Create"
 
@@ -47,9 +52,50 @@ func (c *ChartRepo) Create(ctx context.Context, dto dto.ChartCreateDto) error {
 
 	return nil
 }
+
+// Update
 func (c *ChartRepo) Update(ctx context.Context, chartID uuid.UUID, dto dto.ChartUpdateDto) error {
+	const op = "repository.ChartRepo.Update"
+
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
+
+	fmt.Println("dto", dto)
+
+	if dto.Name != nil {
+		setValues = append(setValues, fmt.Sprintf("name=$%d", argId))
+		args = append(args, *dto.Name)
+		argId++
+	}
+
+	if dto.Measurements != nil {
+		marshaledMeasurements, err := json.Marshal(dto.Measurements)
+		if err != nil {
+			c.log.Error(fmt.Sprintf("%s: failed to marshal measurements: %v", op, err))
+			return fmt.Errorf("%s: %w", op, ErrFailedToUpdateVisualization)
+		}
+		setValues = append(setValues, fmt.Sprintf("measurements=$%d", argId))
+		args = append(args, marshaledMeasurements)
+		argId++
+	}
+
+	setValues = append(setValues, "updated_at=NOW()")
+
+	setQuery := strings.Join(setValues, ", ")
+
+	q := fmt.Sprintf("UPDATE charts SET %s WHERE id=$%d", setQuery, argId)
+	args = append(args, chartID)
+
+	if _, err := c.db.ExecContext(ctx, q, args...); err != nil {
+		c.log.Error(fmt.Sprintf("%s: %s", op, err))
+		return fmt.Errorf("%w", "failed to update chart")
+	}
+
 	return nil
 }
+
+// Delete
 func (c *ChartRepo) Delete(ctx context.Context, chartID uuid.UUID) error {
 	const op = "repository.ChartRepo.Delete"
 

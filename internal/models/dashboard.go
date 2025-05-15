@@ -19,6 +19,6 @@ type Dashboard struct {
 	Username     *string    `json:"username" db:"username"`
 	ViewCount    int        `json:"viewCount" db:"view_count"`
 	ViewedAt     *time.Time `json:"lastViewedAt" db:"last_viewed_at"`
-	UpdatedAt    time.Time  `json:"updatedAt" db:"updated_at"`
+	UpdatedAt    *time.Time `json:"updatedAt" db:"updated_at"`
 	CreatedAt    time.Time  `json:"createdAt" db:"created_at"`
 }

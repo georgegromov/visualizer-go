@@ -1,0 +1,235 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A REST API in Go using Gin framework",
+        "title": "Visualizer REST API",
+        "contact": {},
+        "license": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8888",
+    "basePath": "/api",
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login user",
+                "responses": {}
+            }
+        },
+        "/dashboards": {
+            "get": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Get all dashboards",
+                "responses": {}
+            },
+            "post": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Create dashboard",
+                "responses": {}
+            },
+            "patch": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Update dashboard",
+                "responses": {}
+            }
+        },
+        "/dashboards/share/{id}": {
+            "get": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Get dashboard by share id",
+                "responses": {}
+            }
+        },
+        "/dashboards/t/{id}": {
+            "get": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Get dashboards by template id",
+                "responses": {}
+            }
+        },
+        "/dashboards/{id}": {
+            "get": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Get dashboard by id",
+                "responses": {}
+            },
+            "delete": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Delete dashboard",
+                "responses": {}
+            }
+        },
+        "/dashboards/{id}/metric": {
+            "patch": {
+                "tags": [
+                    "Dashboards"
+                ],
+                "summary": "Metric dashboard",
+                "responses": {}
+            }
+        },
+        "/templates": {
+            "get": {
+                "description": "Returns all templates",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Returns all templates",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Template"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/{id}": {
+            "get": {
+                "description": "Returns template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Returns template",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Template"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Create template",
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Update template",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create user",
+                "responses": {}
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user by id",
+                "responses": {}
+            },
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user",
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "models.Template": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "uses": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Enter your bearer token in the format **Bearer \u0026lt;token\u0026gt;**",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

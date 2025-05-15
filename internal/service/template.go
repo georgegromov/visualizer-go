@@ -22,9 +22,9 @@ func NewTemplateService(log *slog.Logger, repo repository.Template) *TemplateSer
 	}
 }
 
-func (ts *TemplateService) GetAll(ctx context.Context, withCanvases bool) ([]models.Template, error) {
+func (ts *TemplateService) GetAll(ctx context.Context) ([]models.Template, error) {
 	// const op = "service.TemplateService.GetAll"
-	return ts.repo.GetAll(ctx, withCanvases)
+	return ts.repo.GetAll(ctx)
 }
 func (ts *TemplateService) GetByID(ctx context.Context, templateID uuid.UUID) (models.Template, error) {
 	// const op = "service.TemplateService.GetByID"

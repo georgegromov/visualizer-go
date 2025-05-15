@@ -7,11 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	_ "visualizer-go/docs"
+	"visualizer-go/internal/config"
 	"visualizer-go/internal/handler"
-	"visualizer-go/internal/lib/config"
-	"visualizer-go/internal/lib/db/postgres"
-	"visualizer-go/internal/lib/server"
+	"visualizer-go/internal/postgres"
 	"visualizer-go/internal/repository"
+	"visualizer-go/internal/server"
 	"visualizer-go/internal/service"
 
 	_ "github.com/lib/pq"
@@ -37,6 +39,25 @@ func setupLogger(env string) *slog.Logger {
 
 	return log
 }
+
+// @title Visualizer REST API
+// @version 1.0
+// @description A REST API in Go using Gin framework
+
+//	@contact.name
+//	@contact.url
+//	@contact.email
+
+//	@license.name
+//	@license.url
+
+//	@host		localhost:8888
+//	@BasePath	/api
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your bearer token in the format **Bearer &lt;token&gt;**
 
 func main() {
 	cfg := config.MustLoad()

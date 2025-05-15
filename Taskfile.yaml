@@ -13,3 +13,7 @@ tasks:
     desc: 'build in .exe'
     cmds:
       - go build -o visualizer.exe ./cmd/main.go
+  swag:
+    desc: 'generate swagger doc'
+    cmds:
+      - swag init --dir ./cmd,./internal/handler --parseInternal --parseDependency --parseDepth 2

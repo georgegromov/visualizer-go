@@ -1,0 +1,158 @@
+basePath: /api
+definitions:
+  models.Template:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        type: boolean
+      name:
+        type: string
+      updatedAt:
+        type: string
+      uses:
+        type: integer
+    type: object
+host: localhost:8888
+info:
+  contact: {}
+  description: A REST API in Go using Gin framework
+  license: {}
+  title: Visualizer REST API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      responses: {}
+      summary: Login user
+      tags:
+      - Auth
+  /dashboards:
+    get:
+      responses: {}
+      summary: Get all dashboards
+      tags:
+      - Dashboards
+    patch:
+      responses: {}
+      summary: Update dashboard
+      tags:
+      - Dashboards
+    post:
+      responses: {}
+      summary: Create dashboard
+      tags:
+      - Dashboards
+  /dashboards/{id}:
+    delete:
+      responses: {}
+      summary: Delete dashboard
+      tags:
+      - Dashboards
+    get:
+      responses: {}
+      summary: Get dashboard by id
+      tags:
+      - Dashboards
+  /dashboards/{id}/metric:
+    patch:
+      responses: {}
+      summary: Metric dashboard
+      tags:
+      - Dashboards
+  /dashboards/share/{id}:
+    get:
+      responses: {}
+      summary: Get dashboard by share id
+      tags:
+      - Dashboards
+  /dashboards/t/{id}:
+    get:
+      responses: {}
+      summary: Get dashboards by template id
+      tags:
+      - Dashboards
+  /templates:
+    get:
+      consumes:
+      - application/json
+      description: Returns all templates
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Template'
+            type: array
+      summary: Returns all templates
+      tags:
+      - Templates
+  /templates/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Returns template
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Template'
+      summary: Returns template
+      tags:
+      - Templates
+    patch:
+      consumes:
+      - application/json
+      description: Update template
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update template
+      tags:
+      - Templates
+    post:
+      consumes:
+      - application/json
+      description: Create template
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Create template
+      tags:
+      - Templates
+  /users:
+    post:
+      responses: {}
+      summary: Create user
+      tags:
+      - Users
+  /users/{id}:
+    get:
+      responses: {}
+      summary: Get user by id
+      tags:
+      - Users
+    patch:
+      responses: {}
+      summary: Update user
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: Enter your bearer token in the format **Bearer &lt;token&gt;**
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

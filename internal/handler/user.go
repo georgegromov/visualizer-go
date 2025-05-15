@@ -3,12 +3,13 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"visualizer-go/internal/dto"
-	"visualizer-go/internal/lib/response"
 	"visualizer-go/internal/repository"
+	"visualizer-go/internal/response"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var (
@@ -20,7 +21,12 @@ var (
 	ErrUserInvalidRequestData = errors.New("invalid user request data")
 )
 
-func (h *Handler) login(ctx *gin.Context) {
+// loginUser godoc
+//
+// @Summary Login user
+// @Tags Auth
+// @Router /auth/login [post]
+func (h *Handler) handleLogin(ctx *gin.Context) {
 	const op = "handler.login"
 
 	var userLoginDto dto.UserLoginDto
@@ -43,7 +49,12 @@ func (h *Handler) login(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) getUserByID(ctx *gin.Context) {
+// getUserById godoc
+//
+// @Summary Get user by id
+// @Tags Users
+// @Router /users/{id} [get]
+func (h *Handler) handleGetUserByID(ctx *gin.Context) {
 	const op = "handler.getUserByID"
 
 	userIDStr := ctx.Param("id")
@@ -70,7 +81,12 @@ func (h *Handler) getUserByID(ctx *gin.Context) {
 	response.Success(ctx, http.StatusOK, "User fetched successfully", user)
 }
 
-func (h *Handler) createUser(ctx *gin.Context) {
+// createUser godoc
+//
+// @Summary Create user 
+// @Tags Users
+// @Router /users [post]
+func (h *Handler) handleCreateUser(ctx *gin.Context) {
 	const op = "handler.Handler.createUser"
 
 	var userCreateDto dto.UserCreateDto
@@ -89,7 +105,12 @@ func (h *Handler) createUser(ctx *gin.Context) {
 	response.Success(ctx, http.StatusCreated, "User created successfully", nil)
 }
 
-func (h *Handler) updateUser(ctx *gin.Context) {
+// updateUser godoc
+//
+// @Summary Update user 
+// @Tags Users
+// @Router /users/{id} [patch]
+func (h *Handler) handleUpdateUser(ctx *gin.Context) {
 	const op = "handler.Handler.updateUser"
 
 	userIDStr := ctx.Param("id")

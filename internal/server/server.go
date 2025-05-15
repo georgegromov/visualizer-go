@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"visualizer-go/internal/lib/config"
+	"visualizer-go/internal/config"
 )
 
 type Server struct {
@@ -15,17 +15,20 @@ type Server struct {
 }
 
 func New(log *slog.Logger, config config.Server, handler http.Handler) *Server {
+
+	httpServer := &http.Server{
+		Addr:           ":" + config.Port,
+		Handler:        handler,
+		ReadTimeout:    config.ReadTimeout,
+		WriteTimeout:   config.WriteTimeout,
+		IdleTimeout:    config.IdleTimeout,
+		MaxHeaderBytes: config.MaxHeaderMegabytes << 20,
+	}
+
 	return &Server{
-		log:    log,
-		config: config,
-		httpServer: &http.Server{
-			Addr:           ":" + config.Port,
-			Handler:        handler,
-			ReadTimeout:    config.ReadTimeout,
-			WriteTimeout:   config.WriteTimeout,
-			IdleTimeout:    config.IdleTimeout,
-			MaxHeaderBytes: config.MaxHeaderMegabytes << 20,
-		},
+		log:        log,
+		config:     config,
+		httpServer: httpServer,
 	}
 }
 

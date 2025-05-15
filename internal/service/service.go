@@ -19,7 +19,7 @@ type (
 		Update(ctx context.Context, userID uuid.UUID, dto dto.UserUpdateDto) error
 	}
 	Template interface {
-		GetAll(ctx context.Context, withCanvases bool) ([]models.Template, error)
+		GetAll(ctx context.Context) ([]models.Template, error)
 		GetByID(ctx context.Context, templateID uuid.UUID) (models.Template, error)
 		Create(ctx context.Context, dto dto.TemplateCreateDto) (uuid.UUID, error)
 		Update(ctx context.Context, templateID uuid.UUID, dto dto.TemplateUpdateDto) error

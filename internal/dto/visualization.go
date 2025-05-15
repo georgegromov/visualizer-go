@@ -12,12 +12,11 @@ type VisualizationCreateDto struct {
 }
 
 type VisualizationUpdateDto struct {
-	Name        *string      `json:"name" db:"name"`
-	Description *string      `json:"description" db:"description"`
-	Client      *string      `json:"client" db:"client"`
-	IsPublished *bool        `json:"published" db:"is_published"`
-	Canvases    *interface{} `json:"canvases" db:"canvases"`
-	TemplateID  *uuid.UUID   `json:"templateId" db:"template_id"`
-	Tenant      *string      `json:"tenant" db:"tenant"`
-	ViewCount   *uint        `json:"viewCount" db:"view_count"`
+	Name        *string    `json:"name" db:"name"`
+	Description *string    `json:"description" db:"description"`
+	Client      *string    `json:"client" db:"client"`
+	IsPublished *bool      `json:"published" db:"is_published"`
+	TemplateID  *uuid.UUID `json:"templateId" db:"template_id"`
+	Tenant      *string    `json:"tenant" db:"tenant"`
+	ViewCount   *uint      `json:"viewCount" db:"view_count"`
 }

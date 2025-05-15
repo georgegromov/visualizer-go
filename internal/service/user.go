@@ -3,12 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
 	"visualizer-go/internal/repository"
+
+	"github.com/google/uuid"
 )
 
 type UserService struct {
@@ -45,21 +46,21 @@ func (us *UserService) Login(ctx context.Context, dto dto.UserLoginDto) (models.
 }
 
 func (us *UserService) GetByID(ctx context.Context, userID uuid.UUID) (models.User, error) {
-	const op = "service.UserService.GetByID"
+	// const op = "service.UserService.GetByID"
 	return us.repo.GetByID(ctx, userID)
 }
 
 func (us *UserService) GetByUsername(ctx context.Context, username string) (models.User, error) {
-	const op = "service.UserService.GetByUsername"
+	// const op = "service.UserService.GetByUsername"
 	return us.repo.GetByUsername(ctx, username)
 }
 
 func (us *UserService) Create(ctx context.Context, dto dto.UserCreateDto) error {
-	const op = "service.UserService.Create"
+	// const op = "service.UserService.Create"
 	return us.repo.Create(ctx, dto)
 }
 
 func (us *UserService) Update(ctx context.Context, userID uuid.UUID, dto dto.UserUpdateDto) error {
-	const op = "service.UserService.Update"
+	// const op = "service.UserService.Update"
 	return us.repo.Update(ctx, userID, dto)
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	_ "github.com/lib/pq"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -14,6 +13,8 @@ import (
 	"visualizer-go/internal/lib/server"
 	"visualizer-go/internal/repository"
 	"visualizer-go/internal/service"
+
+	_ "github.com/lib/pq"
 )
 
 const (
@@ -21,6 +22,21 @@ const (
 	envDev   = "dev"
 	envProd  = "prod"
 )
+
+func setupLogger(env string) *slog.Logger {
+	var log *slog.Logger
+
+	switch env {
+	case envLocal:
+		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	case envDev:
+		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	case envProd:
+		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	}
+
+	return log
+}
 
 func main() {
 	cfg := config.MustLoad()
@@ -70,19 +86,4 @@ func main() {
 	log.Info("postgres successfully closed")
 
 	log.Info("application gracefully stopped")
-}
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envDev:
-		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envProd:
-		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	}
-
-	return log
 }

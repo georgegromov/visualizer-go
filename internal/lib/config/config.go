@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"github.com/ilyakaznacheev/cleanenv"
 	"os"
 	"time"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type (
@@ -13,6 +14,7 @@ type (
 		Port               string        `yaml:"port"`
 		ReadTimeout        time.Duration `yaml:"readTimeout"`
 		WriteTimeout       time.Duration `yaml:"writeTimeout"`
+		IdleTimeout        time.Duration `yaml:"idleTimeout"`
 		MaxHeaderMegabytes int           `yaml:"maxHeaderBytes"`
 	}
 
@@ -44,7 +46,7 @@ func MustLoad() *Config {
 		appEnv = "local" // заменить на  local
 	}
 
-	configPath := fmt.Sprintf("./configs/%s.yaml", appEnv)
+	configPath := fmt.Sprintf("./config/%s.yaml", appEnv)
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		panic("config file does not exist: " + configPath)

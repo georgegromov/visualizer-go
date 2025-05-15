@@ -23,6 +23,7 @@ func New(log *slog.Logger, config config.Server, handler http.Handler) *Server {
 			Handler:        handler,
 			ReadTimeout:    config.ReadTimeout,
 			WriteTimeout:   config.WriteTimeout,
+			IdleTimeout:    config.IdleTimeout,
 			MaxHeaderBytes: config.MaxHeaderMegabytes << 20,
 		},
 	}

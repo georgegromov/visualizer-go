@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -35,7 +34,6 @@ func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.
 	const op = "repository.TemplateRepo.GetAll"
 
 	var templates []models.Template
-	// var rowsCount int
 
 	q := `
   SELECT 
@@ -48,28 +46,6 @@ func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.
     COUNT(DISTINCT v.id) AS uses
   `
 
-	// Если нужно выбрать канвасы, добавляем поле canvases в SELECT
-	if withCanvases {
-		q += `,
-    t.canvases
-    `
-	}
-
-	// Добавляем FROM и JOIN для visualizations
-	q += `
-  FROM 
-    templates t
-  LEFT JOIN 
-    visualizations v ON v.template_id = t.id
-  WHERE 
-    t.is_deleted = false
-  GROUP BY 
-    t.id, t.name, t.description, t.is_deleted, t.updated_at, t.created_at
-  ORDER BY 
-    t.updated_at DESC;
-  `
-	// LIMIT $1 OFFSET $2;
-
 	err := r.db.SelectContext(ctx, &templates, q)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
@@ -78,18 +54,6 @@ func (r *TemplateRepo) GetAll(ctx context.Context, withCanvases bool) ([]models.
 		}
 		return nil, fmt.Errorf("%s: failed to get templates: %w", op, err)
 	}
-
-	// Запрос для подсчета общего количества записей
-	// countQuery := `
-	// SELECT COUNT(*) FROM templates t
-	// WHERE t.is_deleted = false;
-	// `
-
-	// err = r.db.GetContext(ctx, &rowsCount, countQuery)
-	// if err != nil {
-	// 	r.log.Error(fmt.Sprintf("%s: %s", op, err))
-	// 	return nil, 0, fmt.Errorf("%s: failed to get total count: %w", op, err)
-	// }
 
 	return templates, nil
 }
@@ -115,22 +79,8 @@ func (r *TemplateRepo) Create(ctx context.Context, dto dto.TemplateCreateDto) (u
 
 	var templateID uuid.UUID
 
-	// TODO: вынести преобразование на уровень service
-	var canvasesJson interface{}
-	var err error
-	if dto.Canvases != nil {
-		canvasesJson, err = json.Marshal(dto.Canvases)
-		if err != nil {
-			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
-			return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)
-		}
-	} else {
-		// Если Canvases равно nil, передаем NULL
-		canvasesJson = nil
-	}
-
-	err = r.db.GetContext(ctx, &templateID, "INSERT INTO templates (name, description, canvases) VALUES ($1, $2, $3) RETURNING id",
-		dto.Name, dto.Description, canvasesJson)
+	err := r.db.GetContext(ctx, &templateID, "INSERT INTO templates (name, description) VALUES ($1, $2) RETURNING id",
+		dto.Name, dto.Description)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)
@@ -155,18 +105,6 @@ func (r *TemplateRepo) Update(ctx context.Context, templateID uuid.UUID, dto dto
 	if dto.Description != nil {
 		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
 		args = append(args, *dto.Description)
-		argId++
-	}
-
-	if dto.Canvases != nil {
-		// Преобразуем canvases в строку JSON
-		canvasesJson, err := json.Marshal(dto.Canvases)
-		if err != nil {
-			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
-			return fmt.Errorf("%s: %w", op, ErrFailedToUpdateTemplate)
-		}
-		setValues = append(setValues, fmt.Sprintf("canvases=$%d", argId))
-		args = append(args, canvasesJson)
 		argId++
 	}
 

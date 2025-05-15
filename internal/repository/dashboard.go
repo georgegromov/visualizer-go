@@ -34,31 +34,20 @@ func NewVisualizationRepo(log *slog.Logger, db *sqlx.DB) *VisualizationRepo {
 	return &VisualizationRepo{log: log, db: db}
 }
 
-func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Visualization, error) {
+func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Dashboard, error) {
 	const op = "repository.VisualizationRepo.GetAll"
 
-	var visualizations []models.Visualization
+	var visualizations []models.Dashboard
 
 	query := `
-	SELECT 
-			v.id, 
-			v.name, 
-			v.description,
-			v.client,
-			v.is_published, 
-			v.share_id,
-      v.template_id,
-			v.updated_at, 
-			v.created_at, 
-      v.view_count,
-      v.viewed_at,
-			v.user_id,
-			u.username AS username,
+  SELECT 
+      d.*, 
+      u.username AS creator_name,
       t.name AS template_name
-	FROM visualizations v
-	LEFT JOIN users u ON v.user_id = u.id
-  LEFT JOIN templates t ON v.template_id = t.id
-	ORDER BY v.updated_at DESC
+  FROM dashboards d
+  LEFT JOIN users u ON d.creator_id = u.id
+  LEFT JOIN templates t ON d.template_id = t.id
+  ORDER BY d.updated_at DESC;
 	`
 
 	err := r.db.SelectContext(ctx, &visualizations, query)
@@ -73,19 +62,12 @@ func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Visualization,
 	return visualizations, nil
 }
 
-func (r *VisualizationRepo) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Visualization, error) {
+func (r *VisualizationRepo) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Dashboard, error) {
 	const op = "repository.VisualizationRepo.GetByTemplateID"
 
-	var visualizations []models.Visualization
+	var visualizations []models.Dashboard
 
-	query := `
-  SELECT 
-    id, 
-    name
-  FROM visualizations
-  WHERE template_id = $1
-  ORDER BY updated_at DESC;
-  `
+	query := `SELECT * FROM dashboards WHERE template_id = $1 ORDER BY updated_at DESC;`
 
 	err := r.db.SelectContext(ctx, &visualizations, query, templateID)
 	if err != nil {
@@ -99,10 +81,10 @@ func (r *VisualizationRepo) GetByTemplateID(ctx context.Context, templateID uuid
 	return visualizations, nil
 }
 
-func (r *VisualizationRepo) GetByID(ctx context.Context, visualizationID uuid.UUID) (models.Visualization, error) {
+func (r *VisualizationRepo) GetByID(ctx context.Context, visualizationID uuid.UUID) (models.Dashboard, error) {
 	const op = "repository.VisualizationRepo.GetByID"
 
-	var visualization models.Visualization
+	var visualization models.Dashboard
 	err := r.db.GetContext(ctx, &visualization, "SELECT * FROM visualizations WHERE id = $1", visualizationID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
@@ -115,10 +97,10 @@ func (r *VisualizationRepo) GetByID(ctx context.Context, visualizationID uuid.UU
 	return visualization, nil
 }
 
-func (r *VisualizationRepo) GetByShareID(ctx context.Context, shareID uuid.UUID) (models.Visualization, error) {
+func (r *VisualizationRepo) GetByShareID(ctx context.Context, shareID uuid.UUID) (models.Dashboard, error) {
 	const op = "repository.VisualizationRepo.GetByShareID"
 
-	var visualization models.Visualization
+	var visualization models.Dashboard
 	err := r.db.GetContext(ctx, &visualization, "SELECT * FROM visualizations WHERE share_id = $1 AND is_published = TRUE", shareID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
@@ -195,17 +177,6 @@ func (r *VisualizationRepo) Update(ctx context.Context, visualizationID uuid.UUI
 		argId++
 	}
 
-	if dto.Canvases != nil {
-		canvasesJson, err := json.Marshal(dto.Canvases)
-		if err != nil {
-			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
-			return fmt.Errorf("%s: %w", op, ErrFailedToUpdateVisualization)
-		}
-		setValues = append(setValues, fmt.Sprintf("canvases=$%d", argId))
-		args = append(args, canvasesJson)
-		argId++
-	}
-
 	if dto.TemplateID != nil {
 		setValues = append(setValues, fmt.Sprintf("template_id=$%d", argId))
 		args = append(args, *dto.TemplateID)
@@ -217,12 +188,6 @@ func (r *VisualizationRepo) Update(ctx context.Context, visualizationID uuid.UUI
 		args = append(args, *dto.Tenant)
 		argId++
 	}
-
-	// if dto.ViewCount != nil {
-	// 	setValues = append(setValues, fmt.Sprintf("view_count=$%d", argId))
-	// 	args = append(args, *dto.ViewCount)
-	// 	argId++
-	// }
 
 	setValues = append(setValues, fmt.Sprintf("is_saved=$%d", argId))
 	args = append(args, true)

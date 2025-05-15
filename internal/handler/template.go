@@ -74,7 +74,7 @@ func (h *Handler) getAllTemplates(c *gin.Context) {
 func (h *Handler) getTemplateByID(c *gin.Context) {
 	const op = "handler.Handler.GetTemplateByIDHandler"
 
-	templateIDStr := c.Param("id")
+	templateIDStr := c.Param("templateId")
 	if templateIDStr == "" {
 		h.log.Error(fmt.Sprintf("%s: %v", op, ErrTemplateIDMissing))
 		response.Error(c, http.StatusBadRequest, ErrTemplateIDMissing.Error(), nil)

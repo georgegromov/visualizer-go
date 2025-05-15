@@ -28,7 +28,7 @@ var (
 func (h *Handler) getAllVisualizations(c *gin.Context) {
 	const op = "handler.Handler.getAllVisualizations"
 
-	templates, err := h.services.Visualization.GetAll(c.Request.Context())
+	templates, err := h.services.Dashboard.GetAll(c.Request.Context())
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToFetchVisualizations.Error(), err)
@@ -55,7 +55,7 @@ func (h *Handler) getVisualizationsByTemplateID(c *gin.Context) {
 		return
 	}
 
-	templates, err := h.services.Visualization.GetByTemplateID(c.Request.Context(), templateID)
+	templates, err := h.services.Dashboard.GetByTemplateID(c.Request.Context(), templateID)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToFetchVisualizations.Error(), err)
@@ -82,7 +82,7 @@ func (h *Handler) getVisualizationByID(c *gin.Context) {
 		return
 	}
 
-	template, err := h.services.Visualization.GetByID(c.Request.Context(), templateID)
+	template, err := h.services.Dashboard.GetByID(c.Request.Context(), templateID)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusNotFound, ErrVisualizationNotFound.Error(), err)
@@ -109,7 +109,7 @@ func (h *Handler) getVisualizationByShareID(c *gin.Context) {
 		return
 	}
 
-	template, err := h.services.Visualization.GetByShareID(c.Request.Context(), templateID)
+	template, err := h.services.Dashboard.GetByShareID(c.Request.Context(), templateID)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusNotFound, ErrVisualizationNotFound.Error(), err)
@@ -129,7 +129,7 @@ func (h *Handler) createVisualization(c *gin.Context) {
 		return
 	}
 
-	templateID, err := h.services.Visualization.Create(c.Request.Context(), visualizationCreateDto)
+	templateID, err := h.services.Dashboard.Create(c.Request.Context(), visualizationCreateDto)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToCreateVisualization.Error(), err)
@@ -163,7 +163,7 @@ func (h *Handler) updateVisualization(c *gin.Context) {
 		return
 	}
 
-	if err = h.services.Visualization.Update(c.Request.Context(), templateID, visualizationUpdateDto); err != nil {
+	if err = h.services.Dashboard.Update(c.Request.Context(), templateID, visualizationUpdateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToUpdateVisualization.Error(), err)
 		return
@@ -215,7 +215,7 @@ func (h *Handler) deleteVisualization(c *gin.Context) {
 		return
 	}
 
-	if err = h.services.Visualization.Delete(c.Request.Context(), templateID); err != nil {
+	if err = h.services.Dashboard.Delete(c.Request.Context(), templateID); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusInternalServerError, ErrFailedToDeleteVisualization.Error(), err)
 		return

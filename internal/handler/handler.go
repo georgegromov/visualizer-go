@@ -58,26 +58,44 @@ func (h *Handler) Init() *gin.Engine {
 			{
 				templates.POST("", h.createTemplate)
 				templates.GET("", h.getAllTemplates)
-				templates.GET("/:id", h.getTemplateByID)
+				templates.GET("/:templateId", h.getTemplateByID)
 				templates.PATCH("/:id", h.updateTemplate)
+
+			}
+			// define canvas group route /api/canvases
+			canvases := protected.Group("/canvases")
+			{
+				canvases.GET("", h.getCanvasByTemplateIdHandler)
+				canvases.POST("", h.createCanvasHandler)
+				canvases.PATCH("/:id", h.updateCanvasHandler)
+				canvases.DELETE("/:id", h.deleteCanvasHandler)
+
+			}
+			// define chart group route /api/charts
+			charts := protected.Group("/charts")
+			{
+				charts.GET("", h.getChartsByCanvasIdHanlder)
+				charts.POST("", h.createChartHanlder)
+				charts.PATCH("/:id", h.updateChartHanlder)
+				charts.DELETE("/:id", h.deleteChartHanlder)
 			}
 
 			// TODO: переделать в dashboards
-			// define user group route /api/visualizations
-			visualizations := protected.Group("/visualizations")
+			// define user group route /api/dashboards
+			dashboards := protected.Group("/dashboards")
 			{
-				visualizations.POST("", h.createVisualization)
-				visualizations.GET("", h.getAllVisualizations)
+				dashboards.POST("", h.createVisualization)
+				dashboards.GET("", h.getAllVisualizations)
 				// переделать в api/templates/{id}/dashboards
-				visualizations.GET("/t/:id", h.getVisualizationsByTemplateID)
-				visualizations.GET("/:id", h.getVisualizationByID)
-				visualizations.PATCH("/:id", h.updateVisualization)
-				visualizations.PATCH("/:id/metric", h.metric)
-				visualizations.DELETE("/:id", h.deleteVisualization)
+				dashboards.GET("/t/:id", h.getVisualizationsByTemplateID)
+				dashboards.GET("/:id", h.getVisualizationByID)
+				dashboards.PATCH("/:id", h.updateVisualization)
+				dashboards.PATCH("/:id/metric", h.metric)
+				dashboards.DELETE("/:id", h.deleteVisualization)
 			}
 
-			// get /api/visualizations/share/:id
-			api.GET("/visualizations/share/:id", h.getVisualizationByShareID)
+			// get /api/dashboards/share/:id
+			api.GET("/dashboards/share/:id", h.getVisualizationByShareID)
 		}
 	}
 	return handler

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"visualizer-go/internal/config"
-	"visualizer-go/internal/models"
+	"visualizer-go/internal/domains/users"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -31,7 +31,7 @@ func NewJwtManager(cfg config.Jwt) *JwtManager {
 	}
 }
 
-func (m *JwtManager) GenerateTokens(user *models.User) (accessToken string, refreshToken string, err error) {
+func (m *JwtManager) GenerateTokens(user *users.User) (accessToken string, refreshToken string, err error) {
 	accessToken, err = m.generateToken(user, m.accessTokenTTL)
 	if err != nil {
 		return "", "", err
@@ -45,7 +45,7 @@ func (m *JwtManager) GenerateTokens(user *models.User) (accessToken string, refr
 	return
 }
 
-func (m *JwtManager) generateToken(user *models.User, ttl uint) (string, error) {
+func (m *JwtManager) generateToken(user *users.User, ttl uint) (string, error) {
 	claims := &JwtClaims{
 		UserID:   user.ID,
 		UserRole: user.Role,

@@ -3,19 +3,19 @@ package utils
 import (
 	"errors"
 	"net/http"
-	"visualizer-go/internal/models"
+	"visualizer-go/internal/domains/users"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Get user from context
-func GetUserFromCtx(ctx *gin.Context) (*models.User, error) {
+func GetUserFromCtx(ctx *gin.Context) (*users.User, error) {
 	uctx, ok := ctx.Get("user")
 	if !ok {
 		return nil, errors.New("unauthorized: user not found in context")
 	}
 
-	user, ok := uctx.(*models.User)
+	user, ok := uctx.(*users.User)
 	if !ok {
 		return nil, errors.New("unauthorized: invalid user type")
 	}

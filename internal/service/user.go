@@ -59,7 +59,7 @@ func (us *UserService) Login(ctx context.Context, dto dto.UserLoginDto) (*models
 	}, nil
 }
 
-func (us *UserService) GetByID(ctx context.Context, userID uuid.UUID) (models.User, error) {
+func (us *UserService) GetByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	// const op = "service.UserService.GetByID"
 	return us.repo.GetByID(ctx, userID)
 }

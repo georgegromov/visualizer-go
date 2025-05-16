@@ -19,7 +19,7 @@ func NewChartService(log *slog.Logger, repo repository.Chart) *ChartService {
 	return &ChartService{log: log, repo: repo}
 }
 
-func (c *ChartService) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]models.Chart, error) {
+func (c *ChartService) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]*models.Chart, error) {
 	return c.repo.GetByCanvasID(ctx, canvasID)
 }
 func (c *ChartService) Create(ctx context.Context, dto dto.ChartCreateDto) error {

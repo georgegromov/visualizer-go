@@ -23,12 +23,12 @@ func NewChartRepo(log *slog.Logger, db *sqlx.DB) *ChartRepo {
 }
 
 // Get By Canvas ID
-func (c *ChartRepo) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]models.Chart, error) {
+func (c *ChartRepo) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]*models.Chart, error) {
 	const op = "repository.ChartRepo.GetByCanvasID"
 
 	query := `SELECT * FROM charts WHERE canvas_id = $1`
 
-	var charts []models.Chart
+	charts := []*models.Chart{}
 	if err := c.db.SelectContext(ctx, &charts, query, canvasID); err != nil {
 		c.log.Error(fmt.Sprintf("%s: failed to fetch charts: %v", op, err))
 		// TODO: завернуть ошибку в кастомную

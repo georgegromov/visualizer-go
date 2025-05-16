@@ -31,17 +31,17 @@ func NewUserRepo(log *slog.Logger, db *sqlx.DB) *UserRepo {
 	return &UserRepo{log: log, db: db}
 }
 
-func (r *UserRepo) GetByID(ctx context.Context, userID uuid.UUID) (models.User, error) {
+func (r *UserRepo) GetByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	const op = "repository.UserRepo.GetByID"
 
-	var user models.User
-	err := r.db.GetContext(ctx, &user, "SELECT id, username, role, created_at, updated_at FROM users WHERE id=$1", userID)
+	user := &models.User{}
+	err := r.db.GetContext(ctx, user, "SELECT id, username, role, created_at, updated_at FROM users WHERE id=$1", userID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %v", op, err))
 		if err.Error() == "sql: no rows in result set" {
-			return user, fmt.Errorf("%s: %w", op, ErrUserNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrUserNotFound)
 		}
-		return user, fmt.Errorf("%s: %w", op, ErrFailedToFetchUsers)
+		return nil, fmt.Errorf("%s: %w", op, ErrFailedToFetchUsers)
 	}
 
 	return user, nil
@@ -57,7 +57,7 @@ func (r *UserRepo) GetByUsername(ctx context.Context, username string) (*models.
 		if err.Error() == "sql: no rows in result set" {
 			return nil, fmt.Errorf("%w", ErrUserNotFound)
 		}
-		return user, fmt.Errorf("%s: %w", op, ErrFailedToFetchUsers)
+		return nil, fmt.Errorf("%s: %w", op, ErrFailedToFetchUsers)
 	}
 
 	return user, nil

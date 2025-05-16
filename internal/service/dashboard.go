@@ -22,21 +22,21 @@ func NewVisualizationService(log *slog.Logger, repo repository.Dashboard) *Visua
 	}
 }
 
-func (vs *VisualizationService) GetAll(ctx context.Context) ([]models.Dashboard, error) {
+func (vs *VisualizationService) GetAll(ctx context.Context) ([]*models.Dashboard, error) {
 	// const op = "service.VisualizationService.GetAll"
 	return vs.repo.GetAll(ctx)
 }
-func (vs *VisualizationService) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Dashboard, error) {
+func (vs *VisualizationService) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]*models.Dashboard, error) {
 	// const op = "service.VisualizationService.GetByTemplateID"
 	return vs.repo.GetByTemplateID(ctx, templateID)
 }
 
-func (vs *VisualizationService) GetByID(ctx context.Context, visualizationID uuid.UUID) (models.Dashboard, error) {
+func (vs *VisualizationService) GetByID(ctx context.Context, visualizationID uuid.UUID) (*models.Dashboard, error) {
 	// const op = "service.VisualizationService.GetByID"
 	return vs.repo.GetByID(ctx, visualizationID)
 }
 
-func (vs *VisualizationService) GetByShareID(ctx context.Context, shareID uuid.UUID) (models.Dashboard, error) {
+func (vs *VisualizationService) GetByShareID(ctx context.Context, shareID uuid.UUID) (*models.Dashboard, error) {
 	// const op = "service.VisualizationService.GetByShareID"
 	return vs.repo.GetByShareID(ctx, shareID)
 }

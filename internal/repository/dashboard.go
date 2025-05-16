@@ -34,10 +34,10 @@ func NewVisualizationRepo(log *slog.Logger, db *sqlx.DB) *VisualizationRepo {
 	return &VisualizationRepo{log: log, db: db}
 }
 
-func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Dashboard, error) {
+func (r *VisualizationRepo) GetAll(ctx context.Context) ([]*models.Dashboard, error) {
 	const op = "repository.VisualizationRepo.GetAll"
 
-	var visualizations []models.Dashboard
+	visualizations := []*models.Dashboard{}
 
 	query := `
   SELECT 
@@ -62,10 +62,10 @@ func (r *VisualizationRepo) GetAll(ctx context.Context) ([]models.Dashboard, err
 	return visualizations, nil
 }
 
-func (r *VisualizationRepo) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Dashboard, error) {
+func (r *VisualizationRepo) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]*models.Dashboard, error) {
 	const op = "repository.VisualizationRepo.GetByTemplateID"
 
-	var visualizations []models.Dashboard
+	visualizations := []*models.Dashboard{}
 
 	query := `SELECT * FROM dashboards WHERE template_id = $1 ORDER BY updated_at DESC;`
 
@@ -81,33 +81,33 @@ func (r *VisualizationRepo) GetByTemplateID(ctx context.Context, templateID uuid
 	return visualizations, nil
 }
 
-func (r *VisualizationRepo) GetByID(ctx context.Context, visualizationID uuid.UUID) (models.Dashboard, error) {
+func (r *VisualizationRepo) GetByID(ctx context.Context, visualizationID uuid.UUID) (*models.Dashboard, error) {
 	const op = "repository.VisualizationRepo.GetByID"
 
-	var visualization models.Dashboard
+	visualization := &models.Dashboard{}
 	err := r.db.GetContext(ctx, &visualization, "SELECT * FROM visualizations WHERE id = $1", visualizationID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return visualization, fmt.Errorf("%w", ErrVisualizationNotFound)
+			return nil, fmt.Errorf("%w", ErrVisualizationNotFound)
 		}
-		return visualization, fmt.Errorf("failed to get visualization by ID")
+		return nil, fmt.Errorf("failed to get visualization by ID")
 	}
 
 	return visualization, nil
 }
 
-func (r *VisualizationRepo) GetByShareID(ctx context.Context, shareID uuid.UUID) (models.Dashboard, error) {
+func (r *VisualizationRepo) GetByShareID(ctx context.Context, shareID uuid.UUID) (*models.Dashboard, error) {
 	const op = "repository.VisualizationRepo.GetByShareID"
 
-	var visualization models.Dashboard
+	visualization := &models.Dashboard{}
 	err := r.db.GetContext(ctx, &visualization, "SELECT * FROM visualizations WHERE share_id = $1 AND is_published = TRUE", shareID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return visualization, fmt.Errorf("%w", ErrVisualizationNotFound)
+			return nil, fmt.Errorf("%w", ErrVisualizationNotFound)
 		}
-		return visualization, fmt.Errorf("failed to get visualization")
+		return nil, fmt.Errorf("failed to get visualization")
 	}
 	return visualization, nil
 }

@@ -74,7 +74,7 @@ func AuthMiddleware(log *slog.Logger, services *service.Service, jwtManager *jwt
 			return
 		}
 
-		ctx.Set("user", &user)
+		ctx.Set("user", user)
 
 		ctx.Next()
 	}

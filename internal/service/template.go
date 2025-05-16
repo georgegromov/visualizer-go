@@ -22,17 +22,17 @@ func NewTemplateService(log *slog.Logger, repo repository.Template) *TemplateSer
 	}
 }
 
-func (ts *TemplateService) GetAll(ctx context.Context) ([]models.Template, error) {
+func (ts *TemplateService) GetAll(ctx context.Context) ([]*models.Template, error) {
 	// const op = "service.TemplateService.GetAll"
 	return ts.repo.GetAll(ctx)
 }
-func (ts *TemplateService) GetByID(ctx context.Context, templateID uuid.UUID) (models.Template, error) {
+func (ts *TemplateService) GetByID(ctx context.Context, templateID uuid.UUID) (*models.Template, error) {
 	// const op = "service.TemplateService.GetByID"
 	return ts.repo.GetByID(ctx, templateID)
 }
-func (ts *TemplateService) Create(ctx context.Context, dto dto.TemplateCreateDto) (uuid.UUID, error) {
+func (ts *TemplateService) Create(ctx context.Context, template *models.Template) (uuid.UUID, error) {
 	// const op = "service.TemplateService.Create"
-	return ts.repo.Create(ctx, dto)
+	return ts.repo.Create(ctx, template)
 }
 func (ts *TemplateService) Update(ctx context.Context, templateID uuid.UUID, dto dto.TemplateUpdateDto) error {
 	// const op = "service.TemplateService.Update"

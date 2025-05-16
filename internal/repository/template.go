@@ -30,10 +30,10 @@ func NewTemplateRepo(log *slog.Logger, db *sqlx.DB) *TemplateRepo {
 	return &TemplateRepo{log: log, db: db}
 }
 
-func (r *TemplateRepo) GetAll(ctx context.Context) ([]models.Template, error) {
+func (r *TemplateRepo) GetAll(ctx context.Context) ([]*models.Template, error) {
 	const op = "repository.TemplateRepo.GetAll"
 
-	var templates []models.Template
+	templates := []*models.Template{}
 
 	q := `
   SELECT 
@@ -44,9 +44,6 @@ func (r *TemplateRepo) GetAll(ctx context.Context) ([]models.Template, error) {
     t.updated_at,
     t.created_at,
     COUNT(DISTINCT d.id) AS uses
-  `
-
-	q += `
   FROM 
     templates t
   LEFT JOIN 
@@ -71,29 +68,29 @@ func (r *TemplateRepo) GetAll(ctx context.Context) ([]models.Template, error) {
 	return templates, nil
 }
 
-func (r *TemplateRepo) GetByID(ctx context.Context, templateID uuid.UUID) (models.Template, error) {
+func (r *TemplateRepo) GetByID(ctx context.Context, templateID uuid.UUID) (*models.Template, error) {
 	const op = "repository.TemplateRepo.GetByID"
 
-	var template models.Template
-	err := r.db.GetContext(ctx, &template, "SELECT * FROM templates WHERE id = $1 AND is_deleted = FALSE", templateID)
+	template := &models.Template{}
+	err := r.db.GetContext(ctx, template, "SELECT * FROM templates WHERE id = $1 AND is_deleted = FALSE", templateID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return template, fmt.Errorf("%s: %w", op, ErrTemplateNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrTemplateNotFound)
 		}
-		return template, fmt.Errorf("%s: failed to get template by ID: %w", op, err)
+		return nil, fmt.Errorf("%s: failed to get template by ID: %w", op, err)
 	}
 
 	return template, nil
 }
 
-func (r *TemplateRepo) Create(ctx context.Context, dto dto.TemplateCreateDto) (uuid.UUID, error) {
+func (r *TemplateRepo) Create(ctx context.Context, template *models.Template) (uuid.UUID, error) {
 	const op = "repository.TemplateRepo.Create"
 
 	var templateID uuid.UUID
 
-	err := r.db.GetContext(ctx, &templateID, "INSERT INTO templates (name, description) VALUES ($1, $2) RETURNING id",
-		dto.Name, dto.Description)
+	err := r.db.GetContext(ctx, &templateID, "INSERT INTO templates (name, description, creator_id) VALUES ($1, $2, $3) RETURNING id",
+		template.Name, template.Description, template.CreatorID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)

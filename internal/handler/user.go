@@ -112,15 +112,6 @@ func (h *Handler) handleCreateUser(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Print("password:", user.PasswordHash)
-
-	// var userCreateDto dto.UserCreateDto
-	// if err := ctx.ShouldBindJSON(&userCreateDto); err != nil {
-	// 	h.log.Error(fmt.Sprintf("%s: %v", op, err))
-	// 	response.Error(ctx, http.StatusBadRequest, ErrUserInvalidRequestData.Error(), err)
-	// 	return
-	// }
-
 	if err := h.services.User.Create(ctx.Request.Context(), user); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(ctx, http.StatusInternalServerError, ErrFailedToCreateUser.Error(), err)

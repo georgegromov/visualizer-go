@@ -23,7 +23,7 @@ func (c *CanvasService) Create(ctx context.Context, dto dto.CanvasCreateDto) err
 	return c.repo.Create(ctx, dto)
 }
 
-func (c *CanvasService) GetCanvasesByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Canvas, error) {
+func (c *CanvasService) GetCanvasesByTemplateID(ctx context.Context, templateID uuid.UUID) ([]*models.Canvas, error) {
 	return c.repo.GetCanvasesByTemplateID(ctx, templateID)
 }
 

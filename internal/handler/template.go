@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"visualizer-go/internal/dto"
+	"visualizer-go/internal/models"
 	"visualizer-go/internal/response"
 	"visualizer-go/pkg/utils"
 
@@ -89,31 +90,32 @@ func (h *Handler) getTemplateByID(c *gin.Context) {
 // @Produce json
 // @Success 201
 // @Router /templates/{id} [post]
-func (h *Handler) createTemplate(c *gin.Context) {
+func (h *Handler) createTemplate(ctx *gin.Context) {
 	const op = "handler.Handler.CreateTemplateHandler"
 
-	user, err := utils.GetUserFromCtx(c)
+	user, err := utils.GetUserFromCtx(ctx)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: no user set in context: %v", op, err))
-		response.Error(c, http.StatusUnauthorized, "Unauthorized", nil)
+		response.Error(ctx, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 
-	var templateCreateDto dto.TemplateCreateDto
-	if err := c.ShouldBindJSON(&templateCreateDto); err != nil {
+	template := &models.Template{}
+	template.CreatorID = user.ID
+	if err := utils.ReadRequestBody(ctx, template); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusBadRequest, ErrTemplateInvalidRequestData.Error(), err)
+		response.Error(ctx, http.StatusBadRequest, ErrUserInvalidRequestData.Error(), err)
 		return
 	}
 
-	templateID, err := h.services.Template.Create(c.Request.Context(), templateCreateDto)
+	templateID, err := h.services.Template.Create(ctx.Request.Context(), template)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusInternalServerError, ErrFailedToCreateTemplate.Error(), err)
+		response.Error(ctx, http.StatusInternalServerError, ErrFailedToCreateTemplate.Error(), err)
 		return
 	}
 
-	response.Success(c, http.StatusCreated, "Template created successfully", templateID)
+	response.Success(ctx, http.StatusCreated, "Template created successfully", templateID)
 }
 
 // updateTemplate godoc

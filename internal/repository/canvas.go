@@ -35,12 +35,12 @@ func (c *CanvasRepo) Create(ctx context.Context, dto dto.CanvasCreateDto) error 
 	return nil
 }
 
-func (c *CanvasRepo) GetCanvasesByTemplateID(ctx context.Context, templateID uuid.UUID) ([]models.Canvas, error) {
+func (c *CanvasRepo) GetCanvasesByTemplateID(ctx context.Context, templateID uuid.UUID) ([]*models.Canvas, error) {
 	const op = "repository.CanvasRepo.GetCanvasesByTemplateID"
 
 	query := `SELECT * FROM canvases WHERE template_id = $1`
 
-	var canvases []models.Canvas
+	canvases := []*models.Canvas{}
 	if err := c.db.SelectContext(ctx, &canvases, query, templateID); err != nil {
 		c.log.Error(fmt.Sprintf("%s: failed to fetch canvases: %v", op, err))
 		// TODO: завернуть ошибку в кастомную

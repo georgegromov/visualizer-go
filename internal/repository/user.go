@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
+
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -46,15 +47,15 @@ func (r *UserRepo) GetByID(ctx context.Context, userID uuid.UUID) (models.User, 
 	return user, nil
 }
 
-func (r *UserRepo) GetByUsername(ctx context.Context, username string) (models.User, error) {
+func (r *UserRepo) GetByUsername(ctx context.Context, username string) (*models.User, error) {
 	const op = "repository.UserRepo.GetByUsername"
 
-	var user models.User
-	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE username=$1", username)
+	user := &models.User{}
+	err := r.db.GetContext(ctx, user, "SELECT * FROM users WHERE username=$1", username)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %v", op, err))
 		if err.Error() == "sql: no rows in result set" {
-			return user, fmt.Errorf("%s: %w", op, ErrUserNotFound)
+			return nil, fmt.Errorf("%w", ErrUserNotFound)
 		}
 		return user, fmt.Errorf("%s: %w", op, ErrFailedToFetchUsers)
 	}
@@ -62,11 +63,11 @@ func (r *UserRepo) GetByUsername(ctx context.Context, username string) (models.U
 	return user, nil
 }
 
-func (r *UserRepo) Create(ctx context.Context, dto dto.UserCreateDto) error {
+func (r *UserRepo) Create(ctx context.Context, user *models.User) error {
 	const op = "repository.UserRepo.Create"
 
 	_, err := r.db.ExecContext(ctx, "INSERT INTO users (username, password_hash) VALUES ($1, $2)",
-		dto.Username, dto.Password)
+		user.Username, user.PasswordHash)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %v", op, err))
 		return fmt.Errorf("%s: %w", op, ErrFailedToCreateUser)

@@ -3,7 +3,7 @@ package dto
 import "github.com/google/uuid"
 
 type CanvasCreateDto struct {
-	TemplateID uuid.UUID `json:"templateId" db:"template_id"`
+	TemplateID uuid.UUID `json:"templateId" db:"template_id" validate:"required"`
 }
 
 type CanvasUpdateDto struct {

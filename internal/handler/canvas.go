@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/response"
+	"visualizer-go/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -21,7 +22,8 @@ func (h *Handler) createCanvasHandler(c *gin.Context) {
 	// TODO: дописать и исправить ошибки
 
 	var canvasCreateDto dto.CanvasCreateDto
-	if err := c.ShouldBindJSON(&canvasCreateDto); err != nil {
+
+	if err := utils.ReadRequestBody(c, &canvasCreateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrVisualizationInvalidRequestData.Error(), err)
 		return

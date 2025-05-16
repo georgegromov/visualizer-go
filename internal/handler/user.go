@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"visualizer-go/internal/dto"
+	"visualizer-go/internal/models"
 	"visualizer-go/internal/repository"
 	"visualizer-go/internal/response"
+	"visualizer-go/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -36,7 +38,9 @@ func (h *Handler) handleLogin(ctx *gin.Context) {
 		return
 	}
 
-	user, _, err := h.services.Login(ctx.Request.Context(), userLoginDto)
+	fmt.Print(userLoginDto)
+
+	userWithToken, err := h.services.Login(ctx.Request.Context(), userLoginDto)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(ctx, http.StatusBadRequest, err.Error(), repository.ErrInvalidCredentials.Error())
@@ -44,8 +48,8 @@ func (h *Handler) handleLogin(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, http.StatusOK, "Logged in successfully", gin.H{
-		"user":  user,
-		"token": "test_token_123",
+		"user":  userWithToken.User,
+		"token": userWithToken.Token,
 	})
 }
 
@@ -83,20 +87,29 @@ func (h *Handler) handleGetUserByID(ctx *gin.Context) {
 
 // createUser godoc
 //
-// @Summary Create user 
+// @Summary Create user
 // @Tags Users
 // @Router /users [post]
 func (h *Handler) handleCreateUser(ctx *gin.Context) {
 	const op = "handler.Handler.createUser"
 
-	var userCreateDto dto.UserCreateDto
-	if err := ctx.ShouldBindJSON(&userCreateDto); err != nil {
+	user := &models.User{}
+	if err := utils.ReadRequestBody(ctx, user); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(ctx, http.StatusBadRequest, ErrUserInvalidRequestData.Error(), err)
 		return
 	}
 
-	if err := h.services.User.Create(ctx.Request.Context(), userCreateDto); err != nil {
+	fmt.Print("password:", user.PasswordHash)
+
+	// var userCreateDto dto.UserCreateDto
+	// if err := ctx.ShouldBindJSON(&userCreateDto); err != nil {
+	// 	h.log.Error(fmt.Sprintf("%s: %v", op, err))
+	// 	response.Error(ctx, http.StatusBadRequest, ErrUserInvalidRequestData.Error(), err)
+	// 	return
+	// }
+
+	if err := h.services.User.Create(ctx.Request.Context(), user); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(ctx, http.StatusInternalServerError, ErrFailedToCreateUser.Error(), err)
 		return
@@ -107,7 +120,7 @@ func (h *Handler) handleCreateUser(ctx *gin.Context) {
 
 // updateUser godoc
 //
-// @Summary Update user 
+// @Summary Update user
 // @Tags Users
 // @Router /users/{id} [patch]
 func (h *Handler) handleUpdateUser(ctx *gin.Context) {

@@ -13,8 +13,8 @@ import (
 type (
 	User interface {
 		GetByID(ctx context.Context, userID uuid.UUID) (models.User, error)
-		GetByUsername(ctx context.Context, username string) (models.User, error)
-		Create(ctx context.Context, dto dto.UserCreateDto) error
+		GetByUsername(ctx context.Context, username string) (*models.User, error)
+		Create(ctx context.Context, user *models.User) error
 		Update(ctx context.Context, userID uuid.UUID, dto dto.UserUpdateDto) error
 	}
 	Template interface {

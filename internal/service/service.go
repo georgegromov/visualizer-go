@@ -12,10 +12,10 @@ import (
 
 type (
 	User interface {
-		Login(ctx context.Context, dto dto.UserLoginDto) (models.User, string, error)
+		Login(ctx context.Context, dto dto.UserLoginDto) (models.UserWithToken, error)
 		GetByID(ctx context.Context, userID uuid.UUID) (models.User, error)
-		GetByUsername(ctx context.Context, username string) (models.User, error)
-		Create(ctx context.Context, dto dto.UserCreateDto) error
+		GetByUsername(ctx context.Context, username string) (*models.User, error)
+		Create(ctx context.Context, user *models.User) error
 		Update(ctx context.Context, userID uuid.UUID, dto dto.UserUpdateDto) error
 	}
 	Template interface {

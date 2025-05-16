@@ -6,13 +6,14 @@ import (
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
 	"visualizer-go/internal/repository"
+	jwt_manager "visualizer-go/pkg/jwt"
 
 	"github.com/google/uuid"
 )
 
 type (
 	User interface {
-		Login(ctx context.Context, dto dto.UserLoginDto) (models.UserWithToken, error)
+		Login(ctx context.Context, dto dto.UserLoginDto) (*models.UserWithToken, error)
 		GetByID(ctx context.Context, userID uuid.UUID) (models.User, error)
 		GetByUsername(ctx context.Context, username string) (*models.User, error)
 		Create(ctx context.Context, user *models.User) error
@@ -51,7 +52,8 @@ type (
 	}
 
 	Deps struct {
-		Repo *repository.Repository
+		Repo       *repository.Repository
+		JwtManager *jwt_manager.JwtManager
 	}
 
 	Service struct {
@@ -65,7 +67,7 @@ type (
 
 func New(log *slog.Logger, deps Deps) *Service {
 	return &Service{
-		User:      NewUserService(log, deps.Repo.User),
+		User:      NewUserService(log, deps.Repo.User, deps.JwtManager),
 		Template:  NewTemplateService(log, deps.Repo.Template),
 		Canvas:    NewCanvasService(log, deps.Repo.Canvas),
 		Chart:     NewChartService(log, deps.Repo.Chart),

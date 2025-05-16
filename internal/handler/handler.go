@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"visualizer-go/internal/middlewares"
 	"visualizer-go/internal/service"
+	jwt_manager "visualizer-go/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -25,7 +26,7 @@ func New(log *slog.Logger, service *service.Service, origin string) *Handler {
 	}
 }
 
-func (h *Handler) Init() *gin.Engine {
+func (h *Handler) Init(jwtManager *jwt_manager.JwtManager) *gin.Engine {
 	g := gin.New()
 
 	g.Use(gin.Recovery(), gin.Logger(), middlewares.CorsMiddleware(h.origin))
@@ -46,7 +47,7 @@ func (h *Handler) Init() *gin.Engine {
 
 		// define group route protected
 		protected := api.Group("")
-		protected.Use(middlewares.AuthMiddleware(h.log))
+		protected.Use(middlewares.AuthMiddleware(h.log, h.services, jwtManager))
 		{
 			// define user group route /api/users
 			users := protected.Group("/users")
@@ -86,18 +87,18 @@ func (h *Handler) Init() *gin.Engine {
 			// define user group route /api/dashboards
 			dashboards := protected.Group("/dashboards")
 			{
-				dashboards.POST("", h.createVisualization)
-				dashboards.GET("", h.getAllVisualizations)
+				dashboards.POST("", h.handleCreateDashboard)
+				dashboards.GET("", h.handleGetDashboards)
+				dashboards.GET("/:id", h.handleGetDashboardByID)
+				dashboards.PATCH("/:id", h.handleUpdateDashboard)
+				dashboards.DELETE("/:id", h.handleDeleteDashboard)
 				// переделать в api/templates/{id}/dashboards
-				dashboards.GET("/t/:id", h.getVisualizationsByTemplateID)
-				dashboards.GET("/:id", h.getVisualizationByID)
-				dashboards.PATCH("/:id", h.updateVisualization)
-				dashboards.PATCH("/:id/metric", h.metric)
-				dashboards.DELETE("/:id", h.deleteVisualization)
+				dashboards.GET("/t/:id", h.handleGetDashboardsByTemplateID)
+				dashboards.PATCH("/:id/metric", h.handleMetricDashboard)
 			}
 
 			// get /api/dashboards/share/:id
-			api.GET("/dashboards/share/:id", h.getVisualizationByShareID)
+			api.GET("/dashboards/share/:id", h.handleGetDashboardByShareID)
 		}
 	}
 

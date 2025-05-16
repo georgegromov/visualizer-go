@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,13 +31,11 @@ func (u *User) SanitizePassword() {
 }
 
 func (u *User) HashPassword() error {
-	fmt.Println("before hash", u.PasswordHash)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.PasswordHash), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 	u.PasswordHash = string(hashedPassword)
-	fmt.Println("after hash", u.PasswordHash)
 	return nil
 }
 

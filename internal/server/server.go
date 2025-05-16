@@ -32,13 +32,7 @@ func New(log *slog.Logger, config config.Server, handler http.Handler) *Server {
 	}
 }
 
-func (s *Server) MustRun() {
-	if err := s.Run(); err != nil {
-		panic(err)
-	}
-}
-
-func (s *Server) Run() error {
+func (s *Server) MustStart() {
 	const op = "server.Run"
 
 	log := s.log.With(slog.String("op", op), slog.String("port", s.config.Port))
@@ -46,10 +40,9 @@ func (s *Server) Run() error {
 	log.Info("starting http server...", slog.String("addr", s.config.Host+":"+s.config.Port))
 
 	if err := s.httpServer.ListenAndServe(); err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		panic(fmt.Errorf("%s: %w", op, err))
 	}
 
-	return nil
 }
 
 func (s *Server) Stop(ctx context.Context) error {

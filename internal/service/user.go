@@ -7,23 +7,26 @@ import (
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
 	"visualizer-go/internal/repository"
+	jwt_manager "visualizer-go/pkg/jwt"
 
 	"github.com/google/uuid"
 )
 
 type UserService struct {
-	log  *slog.Logger
-	repo repository.User
+	log        *slog.Logger
+	repo       repository.User
+	jwtManager *jwt_manager.JwtManager
 }
 
-func NewUserService(log *slog.Logger, repo repository.User) *UserService {
+func NewUserService(log *slog.Logger, repo repository.User, jwtManager *jwt_manager.JwtManager) *UserService {
 	return &UserService{
-		log:  log,
-		repo: repo,
+		log:        log,
+		repo:       repo,
+		jwtManager: jwtManager,
 	}
 }
 
-func (us *UserService) Login(ctx context.Context, dto dto.UserLoginDto) (models.UserWithToken, error) {
+func (us *UserService) Login(ctx context.Context, dto dto.UserLoginDto) (*models.UserWithToken, error) {
 	const op = "service.UserService.Login"
 
 	// 1. Find user by username +
@@ -34,20 +37,25 @@ func (us *UserService) Login(ctx context.Context, dto dto.UserLoginDto) (models.
 	foundUser, err := us.GetByUsername(ctx, dto.Username)
 	if err != nil {
 		us.log.Error(fmt.Sprintf("%s: %v", op, err))
-		return models.UserWithToken{}, err
+		return nil, err
 	}
 
 	if err = foundUser.ComparePasswords(dto.Password); err != nil {
 		us.log.Error(fmt.Sprintf("%s: %v", op, err))
-		return models.UserWithToken{}, fmt.Errorf("%s: %w", op, repository.ErrInvalidCredentials)
+		return nil, fmt.Errorf("%s: %w", op, repository.ErrInvalidCredentials)
 	}
 
 	// !!! IMPORTANT DO NOT REMOVE !!! This remove password_hash from json struct
 	foundUser.SanitizePassword()
 
-	return models.UserWithToken{
+	accessToken, _, err := us.jwtManager.GenerateTokens(foundUser)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, repository.ErrInvalidCredentials)
+	}
+
+	return &models.UserWithToken{
 		User:  foundUser,
-		Token: "test_token_123",
+		Token: accessToken,
 	}, nil
 }
 

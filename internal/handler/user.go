@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/models"
 	"visualizer-go/internal/repository"
@@ -38,8 +39,6 @@ func (h *Handler) handleLogin(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Print(userLoginDto)
-
 	userWithToken, err := h.services.Login(ctx.Request.Context(), userLoginDto)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
@@ -47,9 +46,22 @@ func (h *Handler) handleLogin(ctx *gin.Context) {
 		return
 	}
 
+	// TODO encapsulate in CreateTokenCookie func
+	http.SetCookie(ctx.Writer, &http.Cookie{
+		Name:     "accessToken",
+		Value:    userWithToken.Token,
+		Path:     "/",
+		Domain:   "",
+		Expires:  time.Now().Add(7 * 24 * time.Hour), // 7 дней
+		MaxAge:   3600 * 24 * 7,                      // В секундах (7 дней)
+		HttpOnly: true,                               // Защита от доступа из JS
+		Secure:   true,                               // Только HTTPS
+		SameSite: http.SameSiteNoneMode,              // Запрещает кросс-доменные запросы с куки
+	})
+
 	response.Success(ctx, http.StatusOK, "Logged in successfully", gin.H{
-		"user":  userWithToken.User,
-		"token": userWithToken.Token,
+		"user":        userWithToken.User,
+		"accessToken": userWithToken.Token,
 	})
 }
 

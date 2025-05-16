@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"visualizer-go/internal/dto"
 	"visualizer-go/internal/response"
+	"visualizer-go/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -90,6 +91,13 @@ func (h *Handler) getTemplateByID(c *gin.Context) {
 // @Router /templates/{id} [post]
 func (h *Handler) createTemplate(c *gin.Context) {
 	const op = "handler.Handler.CreateTemplateHandler"
+
+	user, err := utils.GetUserFromCtx(c)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: no user set in context: %v", op, err))
+		response.Error(c, http.StatusUnauthorized, "Unauthorized", nil)
+		return
+	}
 
 	var templateCreateDto dto.TemplateCreateDto
 	if err := c.ShouldBindJSON(&templateCreateDto); err != nil {

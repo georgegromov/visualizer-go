@@ -28,7 +28,20 @@ type (
 	}
 
 	Jwt struct {
-		Secret string `yaml:"secret"`
+		SigningKey      string `yaml:"signingKey"`
+		AccessTokenTTL  uint   `yaml:"accessTokenTTL"`
+		RefreshTokenTTL uint   `yaml:"refreshTokenTTL"`
+	}
+
+	Cookie struct {
+		AccessToken CookieAccessToken `yaml:"accessToken"`
+	}
+
+	CookieAccessToken struct {
+		Name     string        `yaml:"name"`
+		MaxAge   time.Duration `yaml:"maxAge"`
+		Secure   bool          `yaml:"secure"`
+		HttpOnly bool          `yaml:"httpOnly"`
 	}
 
 	Config struct {
@@ -37,6 +50,7 @@ type (
 		Server   Server   `yaml:"server"`
 		Database Database `yaml:"database"`
 		Jwt      Jwt      `yaml:"jwt"`
+		Cookie   Cookie   `yaml:"cookie"`
 	}
 )
 

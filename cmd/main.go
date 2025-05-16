@@ -15,6 +15,7 @@ import (
 	"visualizer-go/internal/repository"
 	"visualizer-go/internal/server"
 	"visualizer-go/internal/service"
+	jwt_manager "visualizer-go/pkg/jwt"
 
 	_ "github.com/lib/pq"
 )
@@ -68,17 +69,20 @@ func main() {
 	log.Info("initializing server...", slog.String("address", cfg.Server.Host+":"+cfg.Server.Port))
 	log.Debug("logger debug mode enabled")
 
+	jwtManager := jwt_manager.NewJwtManager(cfg.Jwt)
+
 	db := postgres.MustConnect(log, cfg.Database)
 	repo := repository.New(log, db)
 	svc := service.New(log, service.Deps{
-		Repo: repo,
+		Repo:       repo,
+		JwtManager: jwtManager,
 	})
 	h := handler.New(log, svc, cfg.Origin)
 
-	srv := server.New(log, cfg.Server, h.Init())
+	srv := server.New(log, cfg.Server, h.Init(jwtManager))
 
 	go func() {
-		srv.MustRun()
+		srv.MustStart()
 	}()
 
 	// Graceful shutdown

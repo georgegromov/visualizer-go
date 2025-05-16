@@ -19,4 +19,13 @@ database:
   SSLMode: 'disable'
 
 jwt:
-  secret: 'jwt-secret'
+  signingKey: 'jwt-secret'
+  accessTokenTTL: 10
+  refreshTokenTTL: 100
+
+cookie:
+  accessToken:
+    name: 'access_token'
+    maxAge: 86400s
+    secure: true
+    httpOnly: true

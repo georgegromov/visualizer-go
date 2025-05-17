@@ -32,7 +32,7 @@ func (ts *templateUsecase) Create(ctx context.Context, template *templates.Templ
 	// const op = "service.TemplateService.Create"
 	return ts.repo.Create(ctx, template)
 }
-func (ts *templateUsecase) Update(ctx context.Context, templateID uuid.UUID, dto templates.TemplateUpdateDto) error {
+func (ts *templateUsecase) Update(ctx context.Context, templateID uuid.UUID, dto *templates.TemplateUpdateDto) error {
 	// const op = "service.TemplateService.Update"
 	return ts.repo.Update(ctx, templateID, dto)
 }

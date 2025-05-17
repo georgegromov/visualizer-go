@@ -98,7 +98,7 @@ func (r *templateRepo) Create(ctx context.Context, template *templates.Template)
 	return templateID, nil
 }
 
-func (r *templateRepo) Update(ctx context.Context, templateID uuid.UUID, dto templates.TemplateUpdateDto) error {
+func (r *templateRepo) Update(ctx context.Context, templateID uuid.UUID, dto *templates.TemplateUpdateDto) error {
 	const op = "repository.TemplateRepo.Update"
 
 	setValues := make([]string, 0)

@@ -81,13 +81,11 @@ func (s *Server) Register() {
 		api.GET("/status", func(ctx *gin.Context) {
 			ctx.String(http.StatusOK, "ok")
 		})
-
 		// define group route /api/auth
 		auth := api.Group("/auth")
 		{
 			auth.POST("/login", userHandler.HandleLogin)
 		}
-
 		// define group route protected
 		protected := api.Group("")
 		protected.Use(middlewares.AuthMiddleware(s.log, userUsecase, jwtManager))
@@ -106,7 +104,6 @@ func (s *Server) Register() {
 				templates.GET("", templateHandler.HandleGet)
 				templates.GET("/:templateId", templateHandler.HandleGetById)
 				templates.PATCH("/:id", templateHandler.HandleUpdate)
-
 			}
 			// define canvas group route /api/canvases
 			canvases := protected.Group("/canvases")
@@ -115,7 +112,6 @@ func (s *Server) Register() {
 				canvases.POST("", canvasHandler.HandleCreate)
 				canvases.PATCH("/:id", canvasHandler.HandleUpdate)
 				canvases.DELETE("/:id", canvasHandler.HandleDelete)
-
 			}
 			// define chart group route /api/charts
 			charts := protected.Group("/charts")
@@ -125,7 +121,6 @@ func (s *Server) Register() {
 				charts.PATCH("/:id", chartHandler.HandleUpdate)
 				charts.DELETE("/:id", chartHandler.HandleDelete)
 			}
-
 			// TODO: переделать в dashboards
 			// define user group route /api/dashboards
 			dashboards := protected.Group("/dashboards")
@@ -139,7 +134,6 @@ func (s *Server) Register() {
 				dashboards.GET("/t/:id", dashboardHandler.HandleGetByTemplateId)
 				dashboards.PATCH("/:id/metric", dashboardHandler.HandleMetric)
 			}
-
 			// get /api/dashboards/share/:id
 			api.GET("/dashboards/share/:id", dashboardHandler.HandleGetByShareId)
 		}

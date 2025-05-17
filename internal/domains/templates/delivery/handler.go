@@ -66,14 +66,7 @@ func (h *templateHandler) HandleGet(c *gin.Context) {
 func (h *templateHandler) HandleGetById(c *gin.Context) {
 	const op = "handler.Handler.GetTemplateByIDHandler"
 
-	templateIDStr := c.Param("templateId")
-	if templateIDStr == "" {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrTemplateIDMissing))
-		response.Error(c, http.StatusBadRequest, ErrTemplateIDMissing.Error(), nil)
-		return
-	}
-
-	templateID, err := uuid.Parse(templateIDStr)
+	templateID, err := uuid.Parse(c.Param("templateId"))
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrInvalidTemplateID.Error(), err)
@@ -109,12 +102,17 @@ func (h *templateHandler) HandleCreate(ctx *gin.Context) {
 		return
 	}
 
-	template := &templates.Template{}
-	template.CreatorID = user.ID
-	if err := utils.ReadRequestBody(ctx, template); err != nil {
+	input := &templates.TemplateCreateDto{}
+	if err := utils.ReadRequestBody(ctx, input); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(ctx, http.StatusBadRequest, err.Error(), err)
 		return
+	}
+
+	template := &templates.Template{
+		Name:        input.Name,
+		Description: input.Description,
+		CreatorID:   user.ID,
 	}
 
 	templateID, err := h.templateUC.Create(ctx.Request.Context(), template)
@@ -136,35 +134,28 @@ func (h *templateHandler) HandleCreate(ctx *gin.Context) {
 // @Produce json
 // @Success 200
 // @Router /templates/{id} [patch]
-func (h *templateHandler) HandleUpdate(c *gin.Context) {
+func (h *templateHandler) HandleUpdate(ctx *gin.Context) {
 	const op = "handler.Handler.UpdateTemplateHandler"
 
-	templateIDStr := c.Param("id")
-	if templateIDStr == "" {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrTemplateIDMissing))
-		response.Error(c, http.StatusBadRequest, ErrTemplateIDMissing.Error(), nil)
-		return
-	}
-
-	templateID, err := uuid.Parse(templateIDStr)
+	templateID, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusBadRequest, ErrInvalidTemplateID.Error(), err)
+		response.Error(ctx, http.StatusBadRequest, ErrInvalidTemplateID.Error(), err)
 		return
 	}
 
-	var templateUpdateDto templates.TemplateUpdateDto
-	if err = c.ShouldBindJSON(&templateUpdateDto); err != nil {
+	input := &templates.TemplateUpdateDto{}
+	if err := utils.ReadRequestBody(ctx, input); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusBadRequest, ErrTemplateInvalidRequestData.Error(), err)
+		response.Error(ctx, http.StatusBadRequest, ErrTemplateInvalidRequestData.Error(), err)
 		return
 	}
 
-	if err = h.templateUC.Update(c.Request.Context(), templateID, templateUpdateDto); err != nil {
+	if err = h.templateUC.Update(ctx.Request.Context(), templateID, input); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusInternalServerError, ErrFailedToUpdateTemplate.Error(), err)
+		response.Error(ctx, http.StatusInternalServerError, ErrFailedToUpdateTemplate.Error(), err)
 		return
 	}
 
-	response.Success(c, http.StatusOK, "Template updated successfully", nil)
+	response.Success(ctx, http.StatusOK, "Template updated successfully", nil)
 }

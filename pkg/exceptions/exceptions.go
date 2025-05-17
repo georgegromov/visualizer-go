@@ -10,29 +10,31 @@ import (
 )
 
 const (
-	ErrBadRequest          = "Bad request"
-	ErrInvalidCredentials  = "Invalid credentials"
-	ErrNotFound            = "Not found"
-	ErrUnauthorized        = "Unauthorized"
-	ErrForbidden           = "Forbidden"
-	ErrUsernameTaken       = "Username already taken"
-	ErrInternalServerError = "Internal server error"
-	ErrNoCookie            = "Cookie not found"
-	ErrRequestTimeout      = "Request timeout"
-	ErrInvalidAuthToken    = "Invalid authorization token"
+	ErrBadRequestString          = "Bad request"
+	ErrInvalidCredentialsString  = "Invalid credentials"
+	ErrInvalidQueryParamsString  = "Invalid query params"
+	ErrNotFoundString            = "Not found"
+	ErrUnauthorizedString        = "Unauthorized"
+	ErrForbiddenString           = "Forbidden"
+	ErrUsernameTakenString       = "Username already taken"
+	ErrInternalServerErrorString = "Internal server error"
+	ErrNoCookieString            = "Cookie not found"
+	ErrRequestTimeoutString      = "Request timeout"
+	ErrInvalidAuthTokenString    = "Invalid authorization token"
 )
 
 var (
-	BadRequest          = errors.New(ErrBadRequest)
-	InvalidCredentials  = errors.New(ErrInvalidCredentials)
-	NotFound            = errors.New(ErrNotFound)
-	Unauthorized        = errors.New(ErrUnauthorized)
-	Forbidden           = errors.New(ErrForbidden)
-	UsernameTaken       = errors.New(ErrUsernameTaken)
-	InternalServerError = errors.New(ErrInternalServerError)
-	NoCookie            = errors.New(ErrNoCookie)
-	RequestTimeoutError = errors.New(ErrRequestTimeout)
-	InvalidJWTToken     = errors.New(ErrInvalidAuthToken)
+	ErrBadRequest          = errors.New(ErrBadRequestString)
+	ErrInvalidCredentials  = errors.New(ErrInvalidCredentialsString)
+	ErrInvalidQueryParams  = errors.New(ErrInvalidQueryParamsString)
+	ErrNotFound            = errors.New(ErrNotFoundString)
+	ErrUnauthorized        = errors.New(ErrUnauthorizedString)
+	ErrForbidden           = errors.New(ErrForbiddenString)
+	ErrUsernameTaken       = errors.New(ErrUsernameTakenString)
+	ErrInternalServerError = errors.New(ErrInternalServerErrorString)
+	ErrNoCookie            = errors.New(ErrNoCookieString)
+	ErrRequestTimeoutError = errors.New(ErrRequestTimeoutString)
+	ErrInvalidJWTToken     = errors.New(ErrInvalidAuthTokenString)
 )
 
 type Exception interface {
@@ -70,7 +72,7 @@ func NewHttpException(status int, err string, causes interface{}) Exception {
 func NewBadRequestError(causes interface{}) Exception {
 	return &HttpException{
 		ExcStatus: http.StatusBadRequest,
-		ExcError:  BadRequest.Error(),
+		ExcError:  ErrBadRequest.Error(),
 		ExcCauses: causes,
 	}
 }
@@ -78,7 +80,7 @@ func NewBadRequestError(causes interface{}) Exception {
 func NewNotFoundError(causes interface{}) Exception {
 	return &HttpException{
 		ExcStatus: http.StatusNotFound,
-		ExcError:  NotFound.Error(),
+		ExcError:  ErrNotFound.Error(),
 		ExcCauses: causes,
 	}
 }
@@ -86,7 +88,7 @@ func NewNotFoundError(causes interface{}) Exception {
 func NewUnauthorizedError(causes interface{}) Exception {
 	return &HttpException{
 		ExcStatus: http.StatusUnauthorized,
-		ExcError:  Unauthorized.Error(),
+		ExcError:  ErrUnauthorized.Error(),
 		ExcCauses: causes,
 	}
 }
@@ -94,7 +96,7 @@ func NewUnauthorizedError(causes interface{}) Exception {
 func NewForbiddenError(causes interface{}) Exception {
 	return &HttpException{
 		ExcStatus: http.StatusForbidden,
-		ExcError:  Forbidden.Error(),
+		ExcError:  ErrForbidden.Error(),
 		ExcCauses: causes,
 	}
 }
@@ -102,7 +104,7 @@ func NewForbiddenError(causes interface{}) Exception {
 func NewInternalServerError(causes interface{}) Exception {
 	result := &HttpException{
 		ExcStatus: http.StatusInternalServerError,
-		ExcError:  InternalServerError.Error(),
+		ExcError:  ErrInternalServerError.Error(),
 		ExcCauses: causes,
 	}
 	return result
@@ -111,13 +113,13 @@ func NewInternalServerError(causes interface{}) Exception {
 func parseError(err error) Exception {
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
-		return NewHttpException(http.StatusNotFound, NotFound.Error(), err)
+		return NewHttpException(http.StatusNotFound, ErrNotFound.Error(), err)
 	case errors.Is(err, context.DeadlineExceeded):
-		return NewHttpException(http.StatusRequestTimeout, RequestTimeoutError.Error(), err)
+		return NewHttpException(http.StatusRequestTimeout, ErrRequestTimeoutError.Error(), err)
 	case strings.Contains(strings.ToLower(err.Error()), "cookie"):
-		return NewHttpException(http.StatusUnauthorized, Unauthorized.Error(), err)
+		return NewHttpException(http.StatusUnauthorized, ErrUnauthorized.Error(), err)
 	case strings.Contains(strings.ToLower(err.Error()), "token"):
-		return NewHttpException(http.StatusUnauthorized, Unauthorized.Error(), err)
+		return NewHttpException(http.StatusUnauthorized, ErrUnauthorized.Error(), err)
 
 	default:
 		if exception, ok := err.(Exception); ok {

@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"visualizer-go/internal/domains/charts"
-	"visualizer-go/internal/dto"
 	"visualizer-go/internal/response"
 
 	"github.com/gin-gonic/gin"
@@ -62,7 +61,7 @@ func (h *chartHandler) HandleGetByCanvasId(c *gin.Context) {
 func (h *chartHandler) HandleCreate(c *gin.Context) {
 	const op = "handler.Handler.createChartHanlder"
 
-	var chartCreateDto dto.ChartCreateDto
+	var chartCreateDto charts.ChartCreateDto
 	if err := c.ShouldBindJSON(&chartCreateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrBadRequest.Error(), err)
@@ -96,7 +95,7 @@ func (h *chartHandler) HandleUpdate(c *gin.Context) {
 		return
 	}
 
-	var chartUpdateDto dto.ChartUpdateDto
+	var chartUpdateDto charts.ChartUpdateDto
 	if err = c.ShouldBindJSON(&chartUpdateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, err.Error(), err)

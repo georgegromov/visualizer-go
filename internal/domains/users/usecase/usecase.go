@@ -4,19 +4,20 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"visualizer-go/internal/_domains/users"
-	"visualizer-go/internal/dto"
+	"visualizer-go/internal/domains/users"
+	"visualizer-go/internal/domains/users/repository"
+	jwt_manager "visualizer-go/pkg/jwt"
 
 	"github.com/google/uuid"
 )
 
 type userUsecase struct {
 	log        *slog.Logger
-	repo       repository.User
+	repo       users.Repository
 	jwtManager *jwt_manager.JwtManager
 }
 
-func NewUserService(log *slog.Logger, repo repository.User, jwtManager *jwt_manager.JwtManager) users.Usecase {
+func NewUserService(log *slog.Logger, repo users.Repository, jwtManager *jwt_manager.JwtManager) users.Usecase {
 	return &userUsecase{
 		log:        log,
 		repo:       repo,
@@ -24,7 +25,8 @@ func NewUserService(log *slog.Logger, repo repository.User, jwtManager *jwt_mana
 	}
 }
 
-func (us *userUsecase) Login(ctx context.Context, dto dto.UserLoginDto) (*models.UserWithToken, error) {
+func (us *userUsecase) Login(ctx context.Context, dto users.UserLoginDto) (*users.UserWithToken, error) {
+	const op = "usecase.userUsecase.Login"
 	foundUser, err := us.GetByUsername(ctx, dto.Username)
 	if err != nil {
 		us.log.Error(fmt.Sprintf("%s: %v", op, err))
@@ -44,21 +46,21 @@ func (us *userUsecase) Login(ctx context.Context, dto dto.UserLoginDto) (*models
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrInvalidCredentials)
 	}
 
-	return &models.UserWithToken{
+	return &users.UserWithToken{
 		User:  foundUser,
 		Token: accessToken,
 	}, nil
 }
 
-func (us *userUsecase) GetByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+func (us *userUsecase) GetByID(ctx context.Context, userID uuid.UUID) (*users.User, error) {
 	return us.repo.GetByID(ctx, userID)
 }
 
-func (us *userUsecase) GetByUsername(ctx context.Context, username string) (*models.User, error) {
+func (us *userUsecase) GetByUsername(ctx context.Context, username string) (*users.User, error) {
 	return us.repo.GetByUsername(ctx, username)
 }
 
-func (us *userUsecase) Create(ctx context.Context, user *models.User) error {
+func (us *userUsecase) Create(ctx context.Context, user *users.User) error {
 
 	foundUser, err := us.GetByUsername(ctx, user.Username)
 
@@ -75,6 +77,6 @@ func (us *userUsecase) Create(ctx context.Context, user *models.User) error {
 	return us.repo.Create(ctx, user)
 }
 
-func (us *userUsecase) Update(ctx context.Context, userID uuid.UUID, dto dto.UserUpdateDto) error {
+func (us *userUsecase) Update(ctx context.Context, userID uuid.UUID, dto users.UserUpdateDto) error {
 	return us.repo.Update(ctx, userID, dto)
 }

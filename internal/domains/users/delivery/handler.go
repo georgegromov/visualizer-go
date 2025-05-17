@@ -8,7 +8,6 @@ import (
 	"time"
 	"visualizer-go/internal/domains/users"
 	"visualizer-go/internal/domains/users/repository"
-	"visualizer-go/internal/dto"
 	"visualizer-go/internal/response"
 	"visualizer-go/pkg/utils"
 
@@ -21,7 +20,7 @@ type userHandler struct {
 	userUC users.Usecase
 }
 
-func NewChartHandler(log *slog.Logger, userUC users.Usecase) users.Handler {
+func NewUserHandler(log *slog.Logger, userUC users.Usecase) users.Handler {
 	return &userHandler{log: log, userUC: userUC}
 }
 
@@ -42,7 +41,7 @@ var (
 func (h *userHandler) HandleLogin(ctx *gin.Context) {
 	const op = "handler.login"
 
-	var userLoginDto dto.UserLoginDto
+	var userLoginDto users.UserLoginDto
 	if err := ctx.ShouldBind(&userLoginDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(ctx, http.StatusBadRequest, ErrUserInvalidRequestData.Error(), err)
@@ -153,7 +152,7 @@ func (h *userHandler) HandleUpdate(ctx *gin.Context) {
 		return
 	}
 
-	var userUpdateDto dto.UserUpdateDto
+	var userUpdateDto users.UserUpdateDto
 	if err = ctx.ShouldBindJSON(&userUpdateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(ctx, http.StatusBadRequest, ErrUserInvalidRequestData.Error(), err)

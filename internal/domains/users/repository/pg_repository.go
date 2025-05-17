@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/domains/users"
-	"visualizer-go/internal/dto"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -39,9 +38,9 @@ func (r *userRepo) GetByID(ctx context.Context, userID uuid.UUID) (*users.User, 
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %v", op, err))
 		if err.Error() == "sql: no rows in result set" {
-			return nil, fmt.Errorf("%s: %w", op, ErrUserNotFound)
+			return nil, err
 		}
-		return nil, fmt.Errorf("%s: %w", op, ErrFailedToFetchUsers)
+		return nil, err
 	}
 
 	return user, nil
@@ -55,9 +54,9 @@ func (r *userRepo) GetByUsername(ctx context.Context, username string) (*users.U
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %v", op, err))
 		if err.Error() == "sql: no rows in result set" {
-			return nil, fmt.Errorf("%w", ErrUserNotFound)
+			return nil, err
 		}
-		return nil, fmt.Errorf("%s: %w", op, ErrFailedToFetchUsers)
+		return nil, err
 	}
 
 	return user, nil
@@ -66,17 +65,16 @@ func (r *userRepo) GetByUsername(ctx context.Context, username string) (*users.U
 func (r *userRepo) Create(ctx context.Context, user *users.User) error {
 	const op = "repository.UserRepo.Create"
 
-	_, err := r.db.ExecContext(ctx, "INSERT INTO users (username, password_hash) VALUES ($1, $2)",
-		user.Username, user.PasswordHash)
+	_, err := r.db.ExecContext(ctx, "INSERT INTO users (username, password_hash) VALUES ($1, $2)", user.Username, user.PasswordHash)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %v", op, err))
-		return fmt.Errorf("%s: %w", op, ErrFailedToCreateUser)
+		return err
 	}
 
 	return nil
 }
 
-func (r *userRepo) Update(ctx context.Context, userID uuid.UUID, dto dto.UserUpdateDto) error {
+func (r *userRepo) Update(ctx context.Context, userID uuid.UUID, dto users.UserUpdateDto) error {
 	const op = "repository.UserRepo.Update"
 
 	setValues := make([]string, 0)
@@ -96,7 +94,7 @@ func (r *userRepo) Update(ctx context.Context, userID uuid.UUID, dto dto.UserUpd
 
 	if _, err := r.db.ExecContext(ctx, q, args...); err != nil {
 		r.log.Error(fmt.Sprintf("%s: %v", op, err))
-		return fmt.Errorf("%s: %w", op, ErrFailedToUpdateUser)
+		return err
 	}
 
 	return nil

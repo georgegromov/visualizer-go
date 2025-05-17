@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/domains/templates"
-	"visualizer-go/internal/dto"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -60,9 +59,9 @@ func (r *templateRepo) GetAll(ctx context.Context) ([]*templates.Template, error
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrTemplatesNotFound)
+			return nil, err
 		}
-		return nil, fmt.Errorf("%s: failed to get templates: %w", op, err)
+		return nil, err
 	}
 
 	return templates, nil
@@ -76,9 +75,9 @@ func (r *templateRepo) GetByID(ctx context.Context, templateID uuid.UUID) (*temp
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrTemplateNotFound)
+			return nil, err
 		}
-		return nil, fmt.Errorf("%s: failed to get template by ID: %w", op, err)
+		return nil, err
 	}
 
 	return template, nil
@@ -93,13 +92,13 @@ func (r *templateRepo) Create(ctx context.Context, template *templates.Template)
 		template.Name, template.Description, template.CreatorID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
-		return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateTemplate)
+		return uuid.Nil, err
 	}
 
 	return templateID, nil
 }
 
-func (r *templateRepo) Update(ctx context.Context, templateID uuid.UUID, dto dto.TemplateUpdateDto) error {
+func (r *templateRepo) Update(ctx context.Context, templateID uuid.UUID, dto templates.TemplateUpdateDto) error {
 	const op = "repository.TemplateRepo.Update"
 
 	setValues := make([]string, 0)
@@ -133,7 +132,7 @@ func (r *templateRepo) Update(ctx context.Context, templateID uuid.UUID, dto dto
 
 	if _, err := r.db.ExecContext(ctx, q, args...); err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
-		return fmt.Errorf("%s: %w", op, ErrFailedToUpdateTemplate)
+		return err
 	}
 
 	return nil

@@ -1,4 +1,4 @@
-package dto
+package templates
 
 type TemplateCreateDto struct {
 	Name        string  `json:"name" db:"name"`

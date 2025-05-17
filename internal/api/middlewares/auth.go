@@ -4,15 +4,15 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"visualizer-go/internal/domains/users"
 	"visualizer-go/internal/response"
-	"visualizer-go/internal/service"
 	jwt_manager "visualizer-go/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-func AuthMiddleware(log *slog.Logger, services *service.Service, jwtManager *jwt_manager.JwtManager) gin.HandlerFunc {
+func AuthMiddleware(log *slog.Logger, userUC users.Usecase, jwtManager *jwt_manager.JwtManager) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		const op = "middleware.AuthMiddleware"
@@ -65,7 +65,7 @@ func AuthMiddleware(log *slog.Logger, services *service.Service, jwtManager *jwt
 			return
 		}
 
-		user, err := services.User.GetByID(ctx, uid)
+		user, err := userUC.GetByID(ctx, uid)
 		if err != nil {
 			log.Info("an error occured while getting user:", slog.String("error", err.Error()))
 			ctx.SetCookie("accessToken", "", -1, "/", "", true, true)

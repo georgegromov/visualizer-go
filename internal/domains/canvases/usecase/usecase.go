@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"visualizer-go/internal/domains/canvases"
-	"visualizer-go/internal/dto"
 
 	"github.com/google/uuid"
 )
@@ -18,7 +17,7 @@ func NewCanvasUsecase(log *slog.Logger, repo canvases.Repository) canvases.Useca
 	return &canvasUsecase{log: log, repo: repo}
 }
 
-func (c *canvasUsecase) Create(ctx context.Context, dto dto.CanvasCreateDto) error {
+func (c *canvasUsecase) Create(ctx context.Context, dto canvases.CanvasCreateDto) error {
 	return c.repo.Create(ctx, dto)
 }
 
@@ -26,7 +25,7 @@ func (c *canvasUsecase) GetCanvasesByTemplateID(ctx context.Context, templateID 
 	return c.repo.GetCanvasesByTemplateID(ctx, templateID)
 }
 
-func (c *canvasUsecase) Update(ctx context.Context, canvasID uuid.UUID, dto dto.CanvasUpdateDto) error {
+func (c *canvasUsecase) Update(ctx context.Context, canvasID uuid.UUID, dto canvases.CanvasUpdateDto) error {
 	return c.repo.Update(ctx, canvasID, dto)
 }
 

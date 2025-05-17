@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"visualizer-go/internal/domains/canvases"
-	"visualizer-go/internal/dto"
 	"visualizer-go/internal/response"
 	"visualizer-go/pkg/utils"
 
@@ -32,7 +31,7 @@ func (h *canvasHandler) HandleCreate(c *gin.Context) {
 
 	// TODO: дописать и исправить ошибки
 
-	var canvasCreateDto dto.CanvasCreateDto
+	var canvasCreateDto canvases.CanvasCreateDto
 
 	if err := utils.ReadRequestBody(c, &canvasCreateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
@@ -95,7 +94,7 @@ func (h *canvasHandler) HandleUpdate(c *gin.Context) {
 		return
 	}
 
-	var canvasUpdateDto dto.CanvasUpdateDto
+	var canvasUpdateDto canvases.CanvasUpdateDto
 	if err = c.ShouldBindJSON(&canvasUpdateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, err.Error(), err)

@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"visualizer-go/internal/domains/templates"
-	"visualizer-go/internal/dto"
 	"visualizer-go/internal/response"
 	"visualizer-go/pkg/utils"
 
@@ -154,7 +153,7 @@ func (h *templateHandler) HandleUpdate(c *gin.Context) {
 		return
 	}
 
-	var templateUpdateDto dto.TemplateUpdateDto
+	var templateUpdateDto templates.TemplateUpdateDto
 	if err = c.ShouldBindJSON(&templateUpdateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrTemplateInvalidRequestData.Error(), err)

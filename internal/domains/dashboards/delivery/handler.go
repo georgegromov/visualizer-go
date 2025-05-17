@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"visualizer-go/internal/domains/dashboards"
-	"visualizer-go/internal/dto"
 	"visualizer-go/internal/response"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +41,7 @@ var (
 func (h *dashboardHandler) HandleCreate(c *gin.Context) {
 	const op = "handler.Handler.handleCreateDashboard"
 
-	var visualizationCreateDto dto.VisualizationCreateDto
+	var visualizationCreateDto dashboards.VisualizationCreateDto
 	if err := c.ShouldBindJSON(&visualizationCreateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrVisualizationInvalidRequestData.Error(), err)
@@ -131,7 +130,7 @@ func (h *dashboardHandler) HandleUpdate(c *gin.Context) {
 		return
 	}
 
-	var visualizationUpdateDto dto.VisualizationUpdateDto
+	var visualizationUpdateDto dashboards.VisualizationUpdateDto
 	if err = c.ShouldBindJSON(&visualizationUpdateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrVisualizationInvalidRequestData.Error(), err)

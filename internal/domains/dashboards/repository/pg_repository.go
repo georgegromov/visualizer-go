@@ -9,7 +9,6 @@ import (
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/domains/dashboards"
-	"visualizer-go/internal/dto"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -54,9 +53,9 @@ func (r *dashboardRepo) GetAll(ctx context.Context) ([]*dashboards.Dashboard, er
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%w", ErrVisualizationsNotFound)
+			return nil, err
 		}
-		return nil, fmt.Errorf("failed to get visualizations")
+		return nil, err
 	}
 
 	return visualizations, nil
@@ -73,9 +72,9 @@ func (r *dashboardRepo) GetByTemplateID(ctx context.Context, templateID uuid.UUI
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%w", ErrVisualizationsNotFound)
+			return nil, err
 		}
-		return nil, fmt.Errorf("failed to get visualizations")
+		return nil, err
 	}
 
 	return visualizations, nil
@@ -89,9 +88,9 @@ func (r *dashboardRepo) GetByID(ctx context.Context, visualizationID uuid.UUID) 
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%w", ErrVisualizationNotFound)
+			return nil, err
 		}
-		return nil, fmt.Errorf("failed to get visualization by ID")
+		return nil, err
 	}
 
 	return visualization, nil
@@ -105,14 +104,14 @@ func (r *dashboardRepo) GetByShareID(ctx context.Context, shareID uuid.UUID) (*d
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%w", ErrVisualizationNotFound)
+			return nil, err
 		}
-		return nil, fmt.Errorf("failed to get visualization")
+		return nil, err
 	}
 	return visualization, nil
 }
 
-func (r *dashboardRepo) Create(ctx context.Context, dto dto.VisualizationCreateDto) (uuid.UUID, error) {
+func (r *dashboardRepo) Create(ctx context.Context, dto dashboards.VisualizationCreateDto) (uuid.UUID, error) {
 	const op = "repository.VisualizationRepo.Create"
 
 	var visualizationID uuid.UUID
@@ -126,7 +125,7 @@ func (r *dashboardRepo) Create(ctx context.Context, dto dto.VisualizationCreateD
 		canvasesJson, err = json.Marshal(dto.Canvases)
 		if err != nil {
 			r.log.Error(fmt.Sprintf("%s: failed to marshal canvases: %v", op, err))
-			return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateVisualization)
+			return uuid.Nil, err
 		}
 	} else {
 		// Если Canvases равно nil, передаем NULL
@@ -138,13 +137,13 @@ func (r *dashboardRepo) Create(ctx context.Context, dto dto.VisualizationCreateD
 		dto.Name, dto.UserID, canvasesJson, dto.TemplateID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
-		return uuid.Nil, fmt.Errorf("%s: %w", op, ErrFailedToCreateVisualization)
+		return uuid.Nil, err
 	}
 
 	return visualizationID, nil
 }
 
-func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, dto dto.VisualizationUpdateDto) error {
+func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, dto dashboards.VisualizationUpdateDto) error {
 	const op = "repository.VisualizationRepo.Update"
 
 	setValues := make([]string, 0)
@@ -206,7 +205,7 @@ func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, d
 
 	if _, err := r.db.ExecContext(ctx, q, args...); err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
-		return fmt.Errorf("%w", ErrFailedToUpdateVisualization)
+		return err
 	}
 
 	return nil
@@ -217,7 +216,7 @@ func (r *dashboardRepo) IncrementViewCount(ctx context.Context, visualizationID 
 
 	if _, err := r.db.ExecContext(ctx, "UPDATE visualizations SET view_count = view_count + 1, viewed_at=NOW() WHERE id = $1", visualizationID); err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
-		return fmt.Errorf("%w", ErrFailedToIncrementViewCountVisualization)
+		return err
 	}
 
 	return nil
@@ -229,7 +228,7 @@ func (r *dashboardRepo) Delete(ctx context.Context, visualizationID uuid.UUID) e
 	_, err := r.db.ExecContext(ctx, "DELETE FROM visualizations WHERE id = $1", visualizationID)
 	if err != nil {
 		r.log.Error(fmt.Sprintf("%s: %v", op, err))
-		return fmt.Errorf("failed to delete visualization")
+		return err
 	}
 
 	return nil

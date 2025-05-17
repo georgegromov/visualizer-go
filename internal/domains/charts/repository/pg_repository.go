@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/domains/charts"
-	"visualizer-go/internal/dto"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -39,7 +38,7 @@ func (c *chartRepo) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]*c
 }
 
 // Create
-func (c *chartRepo) Create(ctx context.Context, dto dto.ChartCreateDto) error {
+func (c *chartRepo) Create(ctx context.Context, dto charts.ChartCreateDto) error {
 	const op = "repository.ChartRepo.Create"
 
 	query := `INSERT INTO charts (type, canvas_id) VALUES ($1, $2)`
@@ -54,7 +53,7 @@ func (c *chartRepo) Create(ctx context.Context, dto dto.ChartCreateDto) error {
 }
 
 // Update
-func (c *chartRepo) Update(ctx context.Context, chartID uuid.UUID, dto dto.ChartUpdateDto) error {
+func (c *chartRepo) Update(ctx context.Context, chartID uuid.UUID, dto charts.ChartUpdateDto) error {
 	const op = "repository.ChartRepo.Update"
 
 	setValues := make([]string, 0)
@@ -73,7 +72,7 @@ func (c *chartRepo) Update(ctx context.Context, chartID uuid.UUID, dto dto.Chart
 		marshaledMeasurements, err := json.Marshal(dto.Measurements)
 		if err != nil {
 			c.log.Error(fmt.Sprintf("%s: failed to marshal measurements: %v", op, err))
-			return fmt.Errorf("%s: %w", op, "failed to update chart")
+			return err
 		}
 		setValues = append(setValues, fmt.Sprintf("measurements=$%d", argId))
 		args = append(args, marshaledMeasurements)
@@ -89,7 +88,7 @@ func (c *chartRepo) Update(ctx context.Context, chartID uuid.UUID, dto dto.Chart
 
 	if _, err := c.db.ExecContext(ctx, q, args...); err != nil {
 		c.log.Error(fmt.Sprintf("%s: %s", op, err))
-		return fmt.Errorf("%w", "failed to update chart")
+		return err
 	}
 
 	return nil

@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"strings"
 	"visualizer-go/internal/domains/canvases"
-	"visualizer-go/internal/dto"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -21,7 +20,7 @@ func NewCanvasRepo(log *slog.Logger, db *sqlx.DB) canvases.Repository {
 	return &canvasRepo{log: log, db: db}
 }
 
-func (c *canvasRepo) Create(ctx context.Context, dto dto.CanvasCreateDto) error {
+func (c *canvasRepo) Create(ctx context.Context, dto canvases.CanvasCreateDto) error {
 	const op = "repository.CanvasRepo.Create"
 
 	query := `INSERT INTO canvases (template_id) VALUES ($1)`
@@ -50,7 +49,7 @@ func (c *canvasRepo) GetCanvasesByTemplateID(ctx context.Context, templateID uui
 	return canvases, nil
 }
 
-func (c *canvasRepo) Update(ctx context.Context, canvasID uuid.UUID, dto dto.CanvasUpdateDto) error {
+func (c *canvasRepo) Update(ctx context.Context, canvasID uuid.UUID, dto canvases.CanvasUpdateDto) error {
 	const op = "repository.CanvasRepo.Update"
 
 	setValues := make([]string, 0)
@@ -82,7 +81,7 @@ func (c *canvasRepo) Update(ctx context.Context, canvasID uuid.UUID, dto dto.Can
 
 	if _, err := c.db.ExecContext(ctx, query, args...); err != nil {
 		c.log.Error(fmt.Sprintf("%s: failed to update canvas: %v", op, err))
-		return fmt.Errorf("%s: %w", op, err)
+		return err
 	}
 
 	c.log.Info("canvas updated", slog.String("id", canvasID.String()))

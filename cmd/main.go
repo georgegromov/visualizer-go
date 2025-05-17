@@ -9,37 +9,13 @@ import (
 	"time"
 
 	_ "visualizer-go/docs"
+	"visualizer-go/internal/api/server"
 	"visualizer-go/internal/config"
-	"visualizer-go/internal/handler"
-	"visualizer-go/internal/postgres"
-	"visualizer-go/internal/repository"
-	"visualizer-go/internal/server"
-	"visualizer-go/internal/service"
-	jwt_manager "visualizer-go/pkg/jwt"
+	"visualizer-go/internal/database/postgres"
+	"visualizer-go/pkg/logger"
 
 	_ "github.com/lib/pq"
 )
-
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
-)
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envDev:
-		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envProd:
-		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	}
-
-	return log
-}
 
 // @title Visualizer REST API
 // @version 1.0
@@ -63,27 +39,18 @@ func setupLogger(env string) *slog.Logger {
 func main() {
 	cfg := config.MustLoad()
 
-	log := setupLogger(cfg.Env)
+	log := logger.NewLogger(cfg.Env)
 	log = log.With(slog.String("env", cfg.Env))
 
-	log.Info("initializing server...", slog.String("address", cfg.Server.Host+":"+cfg.Server.Port))
+	log.Info("starting application...", slog.String("address", cfg.Server.Host+":"+cfg.Server.Port))
 	log.Debug("logger debug mode enabled")
 
-	jwtManager := jwt_manager.NewJwtManager(cfg.Jwt)
+	pgdb := postgres.MustConnect(log, cfg.Database)
 
-	db := postgres.MustConnect(log, cfg.Database)
-	repo := repository.New(log, db)
-	svc := service.New(log, service.Deps{
-		Repo:       repo,
-		JwtManager: jwtManager,
-	})
-	h := handler.New(log, svc, cfg.Origin)
+	httpServer := server.New(log, cfg, pgdb)
+	httpServer.Register()
 
-	srv := server.New(log, cfg.Server, h.Init(jwtManager))
-
-	go func() {
-		srv.MustStart()
-	}()
+	go httpServer.MustStart()
 
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)
@@ -98,14 +65,14 @@ func main() {
 	ctx, shutdown := context.WithTimeout(context.Background(), timeout)
 	defer shutdown()
 
-	if err := srv.Stop(ctx); err != nil {
-		log.Error("error occurred while stopping http server: %s", err.Error())
+	if err := httpServer.Stop(ctx); err != nil {
+		log.Error("error occurred while stopping http server", slog.String("error", err.Error()))
 	}
 
 	log.Info("server successfully stopped")
 
-	if err := db.Close(); err != nil {
-		log.Error("error occurred while closing database: %s", err.Error())
+	if err := pgdb.Close(); err != nil {
+		log.Error("error occurred while closing database", slog.String("error", err.Error()))
 	}
 
 	log.Info("postgres successfully closed")

@@ -45,7 +45,7 @@ func MustConnect(log *slog.Logger, cfg config.Database) *sqlx.DB {
 		panic("failed to ping database: " + err.Error())
 	}
 
-	log.Info("postgres connection successfully established")
+	log.Info("postgres connection successfully established", slog.Any("db_stats", db.Stats()))
 
 	return db
 }

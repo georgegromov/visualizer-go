@@ -1,4 +1,4 @@
-package dto
+package canvases
 
 import "github.com/google/uuid"
 

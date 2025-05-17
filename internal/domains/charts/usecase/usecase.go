@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"visualizer-go/internal/domains/charts"
-	"visualizer-go/internal/dto"
 
 	"github.com/google/uuid"
 )
@@ -21,10 +20,10 @@ func NewChartService(log *slog.Logger, repo charts.Repository) charts.Usecase {
 func (c *chartUsecase) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]*charts.Chart, error) {
 	return c.repo.GetByCanvasID(ctx, canvasID)
 }
-func (c *chartUsecase) Create(ctx context.Context, dto dto.ChartCreateDto) error {
+func (c *chartUsecase) Create(ctx context.Context, dto charts.ChartCreateDto) error {
 	return c.repo.Create(ctx, dto)
 }
-func (c *chartUsecase) Update(ctx context.Context, chartID uuid.UUID, dto dto.ChartUpdateDto) error {
+func (c *chartUsecase) Update(ctx context.Context, chartID uuid.UUID, dto charts.ChartUpdateDto) error {
 	return c.repo.Update(ctx, chartID, dto)
 }
 func (c *chartUsecase) Delete(ctx context.Context, chartID uuid.UUID) error {

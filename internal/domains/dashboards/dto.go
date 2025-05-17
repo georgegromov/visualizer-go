@@ -1,4 +1,4 @@
-package dto
+package dashboards
 
 import (
 	"github.com/google/uuid"

@@ -1,4 +1,4 @@
-package dto
+package users
 
 type UserCreateDto struct {
 	Username string `json:"username" db:"username"`

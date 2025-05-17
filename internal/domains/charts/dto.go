@@ -1,4 +1,4 @@
-package dto
+package charts
 
 import "github.com/google/uuid"
 

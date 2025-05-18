@@ -4,11 +4,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type VisualizationCreateDto struct {
-	Name       string       `json:"name" db:"name"`
-	Canvases   *interface{} `json:"canvases" db:"canvases"`
-	TemplateID *uuid.UUID   `json:"templateId" db:"template_id"`
-	UserID     uuid.UUID    `json:"userId" db:"user_id"`
+type DashboardCreateDTO struct {
+	TemplateID *uuid.UUID `json:"templateId" db:"template_id"`
 }
 
 type VisualizationUpdateDto struct {

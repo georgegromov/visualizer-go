@@ -44,7 +44,7 @@ create table dashboards (
 	is_publish BOOL NOT NULL DEFAULT false,
 	share_id UUID NOT NULL DEFAULT gen_random_uuid(),
 	creator_id UUID NOT NULL,
-	template_id UUID NOT NULL,
+	template_id UUID,
 	
 	view_count INTEGER DEFAULT 0,
 	

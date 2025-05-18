@@ -35,8 +35,9 @@ func (vs *dashboardUsecase) GetByShareID(ctx context.Context, shareID uuid.UUID)
 	return vs.repo.GetByShareID(ctx, shareID)
 }
 
-func (vs *dashboardUsecase) Create(ctx context.Context, dto dashboards.VisualizationCreateDto) (uuid.UUID, error) {
-	return vs.repo.Create(ctx, dto)
+func (vs *dashboardUsecase) Create(ctx context.Context, dashboard *dashboards.Dashboard) (uuid.UUID, error) {
+	dashboard.Name = "Untitled"
+	return vs.repo.Create(ctx, dashboard)
 }
 func (vs *dashboardUsecase) Update(ctx context.Context, visualizationID uuid.UUID, dto dashboards.VisualizationUpdateDto) error {
 	return vs.repo.Update(ctx, visualizationID, dto)

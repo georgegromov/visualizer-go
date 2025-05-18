@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"visualizer-go/internal/domains/dashboards"
 	"visualizer-go/internal/response"
+	"visualizer-go/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -38,24 +39,37 @@ var (
 // @Summary Create dashboard
 // @Tags Dashboards
 // @Router /dashboards [post]
-func (h *dashboardHandler) HandleCreate(c *gin.Context) {
+func (h *dashboardHandler) HandleCreate(ctx *gin.Context) {
 	const op = "handler.Handler.handleCreateDashboard"
 
-	var visualizationCreateDto dashboards.VisualizationCreateDto
-	if err := c.ShouldBindJSON(&visualizationCreateDto); err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusBadRequest, ErrVisualizationInvalidRequestData.Error(), err)
+	user, err := utils.GetUserFromCtx(ctx)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: no user set in context: %v", op, err))
+		response.Error(ctx, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 
-	templateID, err := h.dashboardUC.Create(c.Request.Context(), visualizationCreateDto)
+	input := &dashboards.DashboardCreateDTO{}
+
+	if err := utils.ReadRequestBody(ctx, input); err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(ctx, http.StatusBadRequest, ErrVisualizationInvalidRequestData.Error(), err)
+		return
+	}
+
+	dashboard := &dashboards.Dashboard{
+		TemplateID: input.TemplateID,
+		CreatorID:  user.ID,
+	}
+
+	templateID, err := h.dashboardUC.Create(ctx.Request.Context(), dashboard)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusInternalServerError, ErrFailedToCreateVisualization.Error(), err)
+		response.Error(ctx, http.StatusInternalServerError, ErrFailedToCreateVisualization.Error(), err)
 		return
 	}
 
-	response.Success(c, http.StatusCreated, "Visualization created successfully", templateID)
+	response.Success(ctx, http.StatusCreated, "Visualization created successfully", templateID)
 }
 
 // getDashboards godoc

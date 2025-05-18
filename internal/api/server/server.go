@@ -54,7 +54,7 @@ func (s *Server) Register() {
 	templateRepository := templatepg.NewTemplateRepo(s.log, s.pgdb)
 	canvasRepository := canvaspg.NewCanvasRepo(s.log, s.pgdb)
 	chartRepository := chartpg.NewChartRepo(s.log, s.pgdb)
-	dashboardRepository := dashboardpg.NewVisualizationRepo(s.log, s.pgdb)
+	dashboardRepository := dashboardpg.NewDashboardRepo(s.log, s.pgdb)
 
 	// init managers
 	jwtManager := jwt_manager.NewJwtManager(s.config.Jwt)

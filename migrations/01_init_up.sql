@@ -28,20 +28,27 @@ create table canvases (
   CONSTRAINT fk_canvas_template FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE CASCADE
 );
 create table charts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT,
-  type TEXT NOT NULL,
-	measurements jsonb,
-  canvas_id UUID NOT NULL,
-  udated_at TIMESTAMP,
+  	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  	name TEXT,
+  	type TEXT NOT NULL,
+  	canvas_id UUID NOT NULL,
+  	updated_at TIMESTAMP,
+  	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  	CONSTRAINT fk_chart_canvas FOREIGN KEY (canvas_id) REFERENCES canvases(id) ON DELETE CASCADE
+);
+create table measurements (
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	content jsonb NOT NULL,
+	chart_id UUID NOT NULL,
+	updated_at TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_chart_canvas FOREIGN KEY (canvas_id) REFERENCES canvases(id) ON DELETE CASCADE
+	CONSTRAINT fk_chart_measurement FOREIGN KEY (chart_id) REFERENCES charts(id) ON DELETE CASCADE
 );
 create table dashboards (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	name VARCHAR(64) NOT NULL,
   description VARCHAR(255),
-	is_publish BOOL NOT NULL DEFAULT false,
+	is_published BOOL NOT NULL DEFAULT false,
 	share_id UUID NOT NULL DEFAULT gen_random_uuid(),
 	creator_id UUID NOT NULL,
 	template_id UUID,

@@ -16,6 +16,9 @@ import (
 	dashboardh "visualizer-go/internal/domains/dashboards/delivery"
 	dashboardpg "visualizer-go/internal/domains/dashboards/repository"
 	dashboarduc "visualizer-go/internal/domains/dashboards/usecase"
+	measurementh "visualizer-go/internal/domains/measurements/delivery"
+	measurementpg "visualizer-go/internal/domains/measurements/repository"
+	measurementuc "visualizer-go/internal/domains/measurements/usecase"
 	templateh "visualizer-go/internal/domains/templates/delivery"
 	templatepg "visualizer-go/internal/domains/templates/repository"
 	templateuc "visualizer-go/internal/domains/templates/usecase"
@@ -54,6 +57,7 @@ func (s *Server) Register() {
 	templateRepository := templatepg.NewTemplateRepo(s.log, s.pgdb)
 	canvasRepository := canvaspg.NewCanvasRepo(s.log, s.pgdb)
 	chartRepository := chartpg.NewChartRepo(s.log, s.pgdb)
+	measurementRepository := measurementpg.NewMeasurementRepo(s.log, s.pgdb)
 	dashboardRepository := dashboardpg.NewDashboardRepo(s.log, s.pgdb)
 
 	// init managers
@@ -64,6 +68,7 @@ func (s *Server) Register() {
 	templateUsecase := templateuc.NewTemplateService(s.log, templateRepository)
 	canvasUsecase := canvasuc.NewCanvasUsecase(s.log, canvasRepository)
 	chartUsecase := chartuc.NewChartService(s.log, chartRepository)
+	measurementUsecase := measurementuc.NewMeasurementUsecase(s.log, measurementRepository)
 	dashboardUsecase := dashboarduc.NewVisualizationService(s.log, dashboardRepository)
 
 	// init handlers
@@ -71,6 +76,7 @@ func (s *Server) Register() {
 	templateHandler := templateh.NewTemplateHandler(s.log, templateUsecase)
 	canvasHandler := canvash.NewCanvasHandler(s.log, canvasUsecase)
 	chartHandler := charth.NewChartHandler(s.log, chartUsecase)
+	measurementHandler := measurementh.NewCanvasHandler(s.log, measurementUsecase)
 	dashboardHandler := dashboardh.NewDashboardHandler(s.log, dashboardUsecase)
 
 	s.handler.Use(gin.Recovery(), gin.Logger(), middlewares.CorsMiddleware(s.config.Origin))
@@ -120,6 +126,14 @@ func (s *Server) Register() {
 				charts.POST("", chartHandler.HandleCreate)
 				charts.PATCH("/:id", chartHandler.HandleUpdate)
 				charts.DELETE("/:id", chartHandler.HandleDelete)
+			}
+			// define chart group route /api/measurements
+			measurements := protected.Group("/measurements")
+			{
+				measurements.GET("", measurementHandler.HandleGetByChartID)
+				measurements.POST("", measurementHandler.HandleCreate)
+				measurements.PATCH("/:id", measurementHandler.HandleUpdate)
+				measurements.DELETE("/:id", measurementHandler.HandleDelete)
 			}
 			// TODO: переделать в dashboards
 			// define user group route /api/dashboards

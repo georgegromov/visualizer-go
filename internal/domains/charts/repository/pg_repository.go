@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -29,8 +28,7 @@ func (c *chartRepo) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]*c
 
 	charts := []*charts.Chart{}
 	if err := c.db.SelectContext(ctx, &charts, query, canvasID); err != nil {
-		c.log.Error(fmt.Sprintf("%s: failed to fetch charts: %v", op, err))
-		// TODO: завернуть ошибку в кастомную
+		c.log.Error(fmt.Sprintf("%s: an error occured while selecting charts: %v", op, err))
 		return nil, err
 	}
 
@@ -44,8 +42,7 @@ func (c *chartRepo) Create(ctx context.Context, dto charts.ChartCreateDto) error
 	query := `INSERT INTO charts (type, canvas_id) VALUES ($1, $2)`
 
 	if _, err := c.db.ExecContext(ctx, query, dto.Type, dto.CanvasID); err != nil {
-		c.log.Error(fmt.Sprintf("%s: failed to insert chart: %v", op, err))
-		// TODO: не возвращать сырую ошибку
+		c.log.Error(fmt.Sprintf("%s: an error occured while inserting charts: %v", op, err))
 		return err
 	}
 
@@ -60,24 +57,22 @@ func (c *chartRepo) Update(ctx context.Context, chartID uuid.UUID, dto charts.Ch
 	args := make([]interface{}, 0)
 	argId := 1
 
-	fmt.Println("dto", dto)
-
 	if dto.Name != nil {
 		setValues = append(setValues, fmt.Sprintf("name=$%d", argId))
 		args = append(args, *dto.Name)
 		argId++
 	}
 
-	if dto.Measurements != nil {
-		marshaledMeasurements, err := json.Marshal(dto.Measurements)
-		if err != nil {
-			c.log.Error(fmt.Sprintf("%s: failed to marshal measurements: %v", op, err))
-			return err
-		}
-		setValues = append(setValues, fmt.Sprintf("measurements=$%d", argId))
-		args = append(args, marshaledMeasurements)
-		argId++
-	}
+	// if dto.Measurements != nil {
+	// 	marshaledMeasurements, err := json.Marshal(dto.Measurements)
+	// 	if err != nil {
+	// 		c.log.Error(fmt.Sprintf("%s: failed to marshal measurements: %v", op, err))
+	// 		return err
+	// 	}
+	// 	setValues = append(setValues, fmt.Sprintf("measurements=$%d", argId))
+	// 	args = append(args, marshaledMeasurements)
+	// 	argId++
+	// }
 
 	setValues = append(setValues, "updated_at=NOW()")
 
@@ -87,7 +82,7 @@ func (c *chartRepo) Update(ctx context.Context, chartID uuid.UUID, dto charts.Ch
 	args = append(args, chartID)
 
 	if _, err := c.db.ExecContext(ctx, q, args...); err != nil {
-		c.log.Error(fmt.Sprintf("%s: %s", op, err))
+		c.log.Error(fmt.Sprintf("%s: an error occured while updating chart: %v", op, err))
 		return err
 	}
 
@@ -102,7 +97,7 @@ func (c *chartRepo) Delete(ctx context.Context, chartID uuid.UUID) error {
 
 	result, err := c.db.ExecContext(ctx, query, chartID)
 	if err != nil {
-		c.log.Error(fmt.Sprintf("%s: failed to delete chart: %v", op, err))
+		c.log.Error(fmt.Sprintf("%s: an error occured while deleting chart: %v", op, err))
 		return err
 	}
 
@@ -116,6 +111,5 @@ func (c *chartRepo) Delete(ctx context.Context, chartID uuid.UUID) error {
 		c.log.Warn("no canvas found to delete", slog.String("id", chartID.String()))
 	}
 
-	c.log.Info("canvas deleted", slog.String("id", chartID.String()))
 	return nil
 }

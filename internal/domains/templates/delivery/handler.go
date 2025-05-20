@@ -39,7 +39,7 @@ var (
 // @Tags Templates
 // @Accept json
 // @Produce json
-// @Success 200 {object} []models.Template
+// @Success 200 {object} []templates.Template
 // @Router /templates [get]
 func (h *templateHandler) HandleGet(c *gin.Context) {
 	const op = "handler.Handler.GetAllTemplatesHandler"
@@ -61,7 +61,7 @@ func (h *templateHandler) HandleGet(c *gin.Context) {
 // @Tags Templates
 // @Accept json
 // @Produce json
-// @Success 200 {object} models.Template
+// @Success 200 {object} templates.Template
 // @Router /templates/{id} [get]
 func (h *templateHandler) HandleGetById(c *gin.Context) {
 	const op = "handler.Handler.GetTemplateByIDHandler"

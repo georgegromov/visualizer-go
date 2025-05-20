@@ -37,7 +37,7 @@ func (c *canvasRepo) Create(ctx context.Context, dto canvases.CanvasCreateDto) e
 func (c *canvasRepo) GetCanvasesByTemplateID(ctx context.Context, templateID uuid.UUID) ([]*canvases.Canvas, error) {
 	const op = "repository.CanvasRepo.GetCanvasesByTemplateID"
 
-	query := `SELECT * FROM canvases WHERE template_id = $1`
+	query := `SELECT * FROM canvases WHERE template_id = $1 order by created_at asc`
 
 	canvases := []*canvases.Canvas{}
 	if err := c.db.SelectContext(ctx, &canvases, query, templateID); err != nil {
@@ -48,7 +48,8 @@ func (c *canvasRepo) GetCanvasesByTemplateID(ctx context.Context, templateID uui
 
 	return canvases, nil
 }
-
+// description
+// description
 func (c *canvasRepo) Update(ctx context.Context, canvasID uuid.UUID, dto canvases.CanvasUpdateDto) error {
 	const op = "repository.CanvasRepo.Update"
 

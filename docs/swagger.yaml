@@ -1,8 +1,10 @@
 basePath: /api
 definitions:
-  models.Template:
+  templates.Template:
     properties:
       createdAt:
+        type: string
+      creatorId:
         type: string
       description:
         type: string
@@ -16,6 +18,8 @@ definitions:
         type: string
       uses:
         type: integer
+    required:
+    - creatorId
     type: object
 host: localhost:8888
 info:
@@ -88,7 +92,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Template'
+              $ref: '#/definitions/templates.Template'
             type: array
       summary: Returns all templates
       tags:
@@ -104,7 +108,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Template'
+            $ref: '#/definitions/templates.Template'
       summary: Returns template
       tags:
       - Templates
@@ -147,6 +151,12 @@ paths:
     patch:
       responses: {}
       summary: Update user
+      tags:
+      - Users
+  /users/me:
+    get:
+      responses: {}
+      summary: Get current user
       tags:
       - Users
 securityDefinitions:

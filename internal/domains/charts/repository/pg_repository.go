@@ -24,7 +24,7 @@ func NewChartRepo(log *slog.Logger, db *sqlx.DB) charts.Repository {
 func (c *chartRepo) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]*charts.Chart, error) {
 	const op = "repository.ChartRepo.GetByCanvasID"
 
-	query := `SELECT * FROM charts WHERE canvas_id = $1`
+	query := `SELECT * FROM charts WHERE canvas_id = $1 order by created_at asc`
 
 	charts := []*charts.Chart{}
 	if err := c.db.SelectContext(ctx, &charts, query, canvasID); err != nil {

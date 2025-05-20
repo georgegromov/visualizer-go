@@ -39,7 +39,7 @@ var (
 // @Tags Auth
 // @Router /auth/login [post]
 func (h *userHandler) HandleLogin(ctx *gin.Context) {
-	const op = "handler.login"
+	const op = "handler.userHandler.HandleLogin"
 
 	var userLoginDto users.UserLoginDto
 	if err := ctx.ShouldBind(&userLoginDto); err != nil {
@@ -80,7 +80,7 @@ func (h *userHandler) HandleLogin(ctx *gin.Context) {
 // @Tags Users
 // @Router /users/{id} [get]
 func (h *userHandler) HandleGetById(ctx *gin.Context) {
-	const op = "handler.getUserByID"
+	const op = "handler.userHandler.HandleGetById"
 
 	userIDStr := ctx.Param("id")
 	if userIDStr == "" {
@@ -106,13 +106,31 @@ func (h *userHandler) HandleGetById(ctx *gin.Context) {
 	response.Success(ctx, http.StatusOK, "User fetched successfully", user)
 }
 
+// getMe godoc
+//
+// @Summary Get current user
+// @Tags Users
+// @Router /users/me [get]
+func (h *userHandler) HandleGetMe(ctx *gin.Context) {
+	const op = "handler.userHandler.HandleGetMe"
+
+	user, err := utils.GetUserFromCtx(ctx)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: no user set in context: %v", op, err))
+		response.Error(ctx, http.StatusUnauthorized, "Unauthorized", nil)
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "Current user fetched successfully", user)
+}
+
 // createUser godoc
 //
 // @Summary Create user
 // @Tags Users
 // @Router /users [post]
 func (h *userHandler) HandleCreate(ctx *gin.Context) {
-	const op = "handler.Handler.createUser"
+	const op = "handler.userHandler.HandleCreate"
 
 	user := &users.User{}
 	if err := utils.ReadRequestBody(ctx, user); err != nil {
@@ -136,7 +154,7 @@ func (h *userHandler) HandleCreate(ctx *gin.Context) {
 // @Tags Users
 // @Router /users/{id} [patch]
 func (h *userHandler) HandleUpdate(ctx *gin.Context) {
-	const op = "handler.Handler.updateUser"
+	const op = "handler.userHandler.HandleCreate"
 
 	userIDStr := ctx.Param("id")
 	if userIDStr == "" {

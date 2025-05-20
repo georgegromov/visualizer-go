@@ -99,6 +99,7 @@ func (s *Server) Register() {
 			// define user group route /api/users
 			users := protected.Group("/users")
 			{
+				users.GET("/me", userHandler.HandleGetMe)
 				users.GET("/:id", userHandler.HandleGetById)
 				users.POST("", userHandler.HandleCreate)
 				users.PATCH("/:id", userHandler.HandleUpdate)

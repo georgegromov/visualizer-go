@@ -16,4 +16,4 @@ tasks:
   swag:
     desc: 'generate swagger doc'
     cmds:
-      - swag init --dir ./cmd,./internal/handler --parseInternal --parseDependency --parseDepth 2
+      - swag init --dir ./cmd,./internal/domains --parseInternal --parseDependency --parseDepth 2

@@ -110,7 +110,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Template"
+                                "$ref": "#/definitions/templates.Template"
                             }
                         }
                     }
@@ -134,7 +134,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Template"
+                            "$ref": "#/definitions/templates.Template"
                         }
                     }
                 }
@@ -185,6 +185,15 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/users/me": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get current user",
+                "responses": {}
+            }
+        },
         "/users/{id}": {
             "get": {
                 "tags": [
@@ -203,10 +212,16 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.Template": {
+        "templates.Template": {
             "type": "object",
+            "required": [
+                "creatorId"
+            ],
             "properties": {
                 "createdAt": {
+                    "type": "string"
+                },
+                "creatorId": {
                     "type": "string"
                 },
                 "description": {

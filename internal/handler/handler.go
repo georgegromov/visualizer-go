@@ -42,6 +42,10 @@ func (h *Handler) Init() *gin.Engine {
 			auth.POST("/login", h.login)
 		}
 
+		// get /api/visualizations/share/:id
+		api.GET("/visualizations/share/:id", h.getVisualizationByShareID)
+		api.PATCH("visualizations/:id/metric", h.metric)
+
 		// define group route protected
 		protected := api.Group("")
 		protected.Use(middlewares.AuthMiddleware(h.log))
@@ -72,12 +76,8 @@ func (h *Handler) Init() *gin.Engine {
 				visualizations.GET("/t/:id", h.getVisualizationsByTemplateID)
 				visualizations.GET("/:id", h.getVisualizationByID)
 				visualizations.PATCH("/:id", h.updateVisualization)
-				visualizations.PATCH("/:id/metric", h.metric)
 				visualizations.DELETE("/:id", h.deleteVisualization)
 			}
-
-			// get /api/visualizations/share/:id
-			api.GET("/visualizations/share/:id", h.getVisualizationByShareID)
 		}
 	}
 	return handler

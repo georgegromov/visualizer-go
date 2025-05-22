@@ -10,5 +10,5 @@ type Handler interface {
 	HandleDelete(c *gin.Context)
 	HandleGetByTemplateId(c *gin.Context)
 	HandleGetByShareId(c *gin.Context)
-	HandleMetric(c *gin.Context)
+	HandleMetrics(c *gin.Context)
 }

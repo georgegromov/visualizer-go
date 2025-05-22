@@ -66,7 +66,7 @@ func (h *templateHandler) HandleGet(c *gin.Context) {
 func (h *templateHandler) HandleGetById(c *gin.Context) {
 	const op = "handler.Handler.GetTemplateByIDHandler"
 
-	templateID, err := uuid.Parse(c.Param("templateId"))
+	templateID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrInvalidTemplateID.Error(), err)
@@ -158,4 +158,28 @@ func (h *templateHandler) HandleUpdate(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, http.StatusOK, "Template updated successfully", nil)
+}
+
+func (h *templateHandler) HandleSaveAs(ctx *gin.Context) {
+	const op = "handler.Handler.UpdateTemplateHandler"
+
+	// user, err := utils.GetUserFromCtx(ctx)
+	// if err != nil {
+	// 	h.log.Error(fmt.Sprintf("%s: no user set in context: %v", op, err))
+	// 	response.Error(ctx, http.StatusUnauthorized, "Unauthorized", nil)
+	// 	return
+	// }
+
+	input := &templates.TemplateSaveAsDTO{}
+	if err := utils.ReadRequestBody(ctx, input); err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(ctx, http.StatusBadRequest, ErrTemplateInvalidRequestData.Error(), err)
+		return
+	}
+
+	_ = h.templateUC.SaveAs(ctx.Request.Context(), input)
+
+	fmt.Print("input:", input)
+
+	response.Success(ctx, http.StatusOK, "Template saved successfully", nil)
 }

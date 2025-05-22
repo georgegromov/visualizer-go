@@ -245,14 +245,14 @@ func (h *dashboardHandler) HandleGetByShareId(c *gin.Context) {
 		return
 	}
 
-	template, err := h.dashboardUC.GetByShareID(c.Request.Context(), templateID)
+	dashboard, err := h.dashboardUC.GetByShareID(c.Request.Context(), templateID)
 	if err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusNotFound, ErrVisualizationNotFound.Error(), err)
 		return
 	}
 
-	response.Success(c, http.StatusOK, "Visualization fetched successfully", template)
+	response.Success(c, http.StatusOK, "Dashboard fetched successfully", dashboard)
 }
 
 // metrichDashboard godoc
@@ -260,28 +260,28 @@ func (h *dashboardHandler) HandleGetByShareId(c *gin.Context) {
 // @Summary Metric dashboard
 // @Tags Dashboards
 // @Router /dashboards/{id}/metric [patch]
-func (h *dashboardHandler) HandleMetric(c *gin.Context) {
+func (h *dashboardHandler) HandleMetrics(c *gin.Context) {
 	const op = "handler.Handler.metric"
 
-	templateIDStr := c.Param("id")
-	if templateIDStr == "" {
-		h.log.Error(fmt.Sprintf("%s: %v", op, ErrVisualizationIDMissing))
-		response.Error(c, http.StatusBadRequest, ErrVisualizationIDMissing.Error(), nil)
-		return
-	}
+	// templateIDStr := c.Param("id")
+	// if templateIDStr == "" {
+	// 	h.log.Error(fmt.Sprintf("%s: %v", op, ErrVisualizationIDMissing))
+	// 	response.Error(c, http.StatusBadRequest, ErrVisualizationIDMissing.Error(), nil)
+	// 	return
+	// }
 
-	templateID, err := uuid.Parse(templateIDStr)
-	if err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusBadRequest, ErrInvalidVisualizationID.Error(), err)
-		return
-	}
+	// templateID, err := uuid.Parse(templateIDStr)
+	// if err != nil {
+	// 	h.log.Error(fmt.Sprintf("%s: %v", op, err))
+	// 	response.Error(c, http.StatusBadRequest, ErrInvalidVisualizationID.Error(), err)
+	// 	return
+	// }
 
-	if err = h.dashboardUC.IncrementViewCount(c.Request.Context(), templateID); err != nil {
-		h.log.Error(fmt.Sprintf("%s: %v", op, err))
-		response.Error(c, http.StatusInternalServerError, ErrFailedToIncrementViewCountVisualization.Error(), err)
-		return
-	}
+	// if err = h.dashboardUC.IncrementViewCount(c.Request.Context(), templateID); err != nil {
+	// 	h.log.Error(fmt.Sprintf("%s: %v", op, err))
+	// 	response.Error(c, http.StatusInternalServerError, ErrFailedToIncrementViewCountVisualization.Error(), err)
+	// 	return
+	// }
 
 	response.Success(c, http.StatusOK, "view count incremented", nil)
 }

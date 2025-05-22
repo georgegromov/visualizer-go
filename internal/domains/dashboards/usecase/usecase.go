@@ -32,7 +32,14 @@ func (vs *dashboardUsecase) GetByID(ctx context.Context, visualizationID uuid.UU
 }
 
 func (vs *dashboardUsecase) GetByShareID(ctx context.Context, shareID uuid.UUID) (*dashboards.Dashboard, error) {
-	return vs.repo.GetByShareID(ctx, shareID)
+	dashboard, err := vs.repo.GetByShareID(ctx, shareID)
+	if err != nil {
+		return nil, err
+	}
+	if dashboard != nil {
+		_ = vs.repo.IncrementViewCount(ctx, dashboard.ID)
+	}
+	return dashboard, nil
 }
 
 func (vs *dashboardUsecase) Create(ctx context.Context, dashboard *dashboards.Dashboard) (uuid.UUID, error) {

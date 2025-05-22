@@ -109,8 +109,9 @@ func (s *Server) Register() {
 			{
 				templates.POST("", templateHandler.HandleCreate)
 				templates.GET("", templateHandler.HandleGet)
-				templates.GET("/:templateId", templateHandler.HandleGetById)
+				templates.GET("/:id", templateHandler.HandleGetById)
 				templates.PATCH("/:id", templateHandler.HandleUpdate)
+				templates.POST("/analysis", templateHandler.HandleSaveAs)
 			}
 			// define canvas group route /api/canvases
 			canvases := protected.Group("/canvases")
@@ -147,8 +148,10 @@ func (s *Server) Register() {
 				dashboards.DELETE("/:id", dashboardHandler.HandleDelete)
 				// переделать в api/templates/{id}/dashboards
 				dashboards.GET("/t/:id", dashboardHandler.HandleGetByTemplateId)
-				dashboards.PATCH("/:id/metric", dashboardHandler.HandleMetric)
 			}
+
+			// get /api/dashboards/:id/metrics
+			api.PATCH("/dashboards/:id/metrics", dashboardHandler.HandleMetrics)
 			// get /api/dashboards/share/:id
 			api.GET("/dashboards/share/:id", dashboardHandler.HandleGetByShareId)
 		}

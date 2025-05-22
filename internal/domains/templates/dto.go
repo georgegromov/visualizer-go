@@ -10,3 +10,7 @@ type TemplateUpdateDto struct {
 	Description *string `json:"description" db:"description"`
 	IsDeleted   *bool   `json:"isDeleted" db:"is_deleted"`
 }
+
+type TemplateSaveAsDTO struct {
+	Canvases []AnalysisCanvas `json:"canvases" validate:"required"`
+}

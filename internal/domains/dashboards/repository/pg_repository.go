@@ -33,7 +33,7 @@ func NewDashboardRepo(log *slog.Logger, db *sqlx.DB) dashboards.Repository {
 }
 
 func (r *dashboardRepo) GetAll(ctx context.Context) ([]*dashboards.Dashboard, error) {
-	const op = "repository.VisualizationRepo.GetAll"
+	const op = "repository.dashboardRepo.GetAll"
 
 	dashboards := []*dashboards.Dashboard{}
 
@@ -61,7 +61,7 @@ func (r *dashboardRepo) GetAll(ctx context.Context) ([]*dashboards.Dashboard, er
 }
 
 func (r *dashboardRepo) GetByTemplateID(ctx context.Context, templateID uuid.UUID) ([]*dashboards.Dashboard, error) {
-	const op = "repository.VisualizationRepo.GetByTemplateID"
+	const op = "repository.dashboardRepo.GetByTemplateID"
 
 	dashboards := []*dashboards.Dashboard{}
 
@@ -80,7 +80,7 @@ func (r *dashboardRepo) GetByTemplateID(ctx context.Context, templateID uuid.UUI
 }
 
 func (r *dashboardRepo) GetByID(ctx context.Context, dashboardId uuid.UUID) (*dashboards.Dashboard, error) {
-	const op = "repository.VisualizationRepo.GetByID"
+	const op = "repository.dashboardRepo.GetByID"
 
 	dashboard := &dashboards.Dashboard{}
 	err := r.db.GetContext(ctx, dashboard, "SELECT * FROM dashboards WHERE id = $1", dashboardId)
@@ -96,7 +96,7 @@ func (r *dashboardRepo) GetByID(ctx context.Context, dashboardId uuid.UUID) (*da
 }
 
 func (r *dashboardRepo) GetByShareID(ctx context.Context, shareID uuid.UUID) (*dashboards.Dashboard, error) {
-	const op = "repository.VisualizationRepo.GetByShareID"
+	const op = "repository.dashboardRepo.GetByShareID"
 
 	dashboard := &dashboards.Dashboard{}
 	err := r.db.GetContext(ctx, dashboard, "SELECT * FROM dashboards WHERE share_id = $1 AND is_published = TRUE", shareID)
@@ -111,7 +111,7 @@ func (r *dashboardRepo) GetByShareID(ctx context.Context, shareID uuid.UUID) (*d
 }
 
 func (r *dashboardRepo) Create(ctx context.Context, dashboard *dashboards.Dashboard) (uuid.UUID, error) {
-	const op = "repository.VisualizationRepo.Create"
+	const op = "repository.dashboardRepo.Create"
 
 	var dashboardId uuid.UUID
 
@@ -126,7 +126,7 @@ func (r *dashboardRepo) Create(ctx context.Context, dashboard *dashboards.Dashbo
 }
 
 func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, dto dashboards.VisualizationUpdateDto) error {
-	const op = "repository.VisualizationRepo.Update"
+	const op = "repository.dashboardRepo.Update"
 
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
@@ -186,7 +186,7 @@ func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, d
 }
 
 func (r *dashboardRepo) IncrementViewCount(ctx context.Context, visualizationID uuid.UUID) error {
-	const op = "repository.VisualizationRepo.IncrementViewCount"
+	const op = "repository.dashboardRepo.IncrementViewCount"
 
 	if _, err := r.db.ExecContext(ctx, "UPDATE dashboards SET view_count = view_count + 1, viewed_at=NOW() WHERE id = $1", visualizationID); err != nil {
 		r.log.Error(fmt.Sprintf("%s: %s", op, err))
@@ -197,7 +197,7 @@ func (r *dashboardRepo) IncrementViewCount(ctx context.Context, visualizationID 
 }
 
 func (r *dashboardRepo) Delete(ctx context.Context, visualizationID uuid.UUID) error {
-	const op = "repository.VisualizationRepo.Delete"
+	const op = "repository.dashboardRepo.Delete"
 
 	_, err := r.db.ExecContext(ctx, "DELETE FROM dashboards WHERE id = $1", visualizationID)
 	if err != nil {

@@ -3,14 +3,20 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
+	"visualizer-go/internal/domains/canvases"
+	"visualizer-go/internal/domains/charts"
+	"visualizer-go/internal/domains/measurements"
 	"visualizer-go/internal/domains/templates"
+	"visualizer-go/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/jmoiron/sqlx/types"
 )
 
 var (
@@ -136,4 +142,74 @@ func (r *templateRepo) Update(ctx context.Context, templateID uuid.UUID, dto *te
 	}
 
 	return nil
+}
+
+func (r *templateRepo) SaveAs(ctx context.Context, dto *templates.TemplateSaveAsDTO) (uuid.UUID, error) {
+	const op = "repository.TemplateRepo.SaveAs"
+	var templateID uuid.UUID
+
+	err := utils.WithTx(ctx, r.db, func(tx *sqlx.Tx) error {
+
+		q1 := `INSERT INTO templates (name, creator_id) VALUES ($1, $2) RETURNING id`
+
+		if err := tx.GetContext(ctx, &templateID, q1, dto.Name, dto.CreatorID); err != nil {
+			r.log.Error(fmt.Sprintf("%s: an error occured whilte inserting template %s", op, err))
+			return err
+		}
+
+		for _, canvas := range dto.Canvases {
+
+			cnvs := &canvases.CanvasCreateDto{
+				TemplateID: templateID,
+			}
+
+			var canvasID uuid.UUID
+			q2 := `INSERT INTO canvases (template_id) VALUES ($1) RETURNING id`
+
+			if err := tx.GetContext(ctx, &canvasID, q2, cnvs.TemplateID); err != nil {
+				r.log.Error(fmt.Sprintf("%s: an error occured whilte inserting canvas %s", op, err))
+				return err
+			}
+
+			for _, chart := range canvas.Charts {
+
+				chrt := &charts.ChartCreateDto{
+					Type:     chart.Type,
+					CanvasID: canvasID,
+				}
+
+				var chartID uuid.UUID
+				q3 := `INSERT INTO charts (type, canvas_id) VALUES ($1, $2) RETURNING id`
+
+				if err := tx.GetContext(ctx, &chartID, q3, chrt.Type, chrt.CanvasID); err != nil {
+					r.log.Error(fmt.Sprintf("%s: an error occured whilte inserting chart %s", op, err))
+					return err
+				}
+
+				for _, measurement := range chart.Measurements {
+
+					contentJson, err := json.Marshal(measurement.Content)
+					if err != nil {
+						r.log.Error(fmt.Sprintf("%s: an error occured whilte marshaling content %s", op, err))
+						return err
+					}
+
+					msrmnt := &measurements.MeasurementCreateDTO{
+						ChartID: chartID,
+						Content: types.JSONText(contentJson),
+					}
+
+					q4 := `INSERT INTO measurements (content, chart_id) VALUES ($1, $2)`
+
+					if _, err = tx.ExecContext(ctx, q4, msrmnt.Content, msrmnt.ChartID); err != nil {
+						r.log.Error(fmt.Sprintf("%s: an error occured whilte inserting measurement %s", op, err))
+						return err
+					}
+				}
+			}
+		}
+		return nil
+	})
+
+	return templateID, err
 }

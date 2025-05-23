@@ -1,5 +1,7 @@
 package templates
 
+import "github.com/google/uuid"
+
 type TemplateCreateDto struct {
 	Name        string  `json:"name" db:"name"`
 	Description *string `json:"description" db:"description"`
@@ -12,5 +14,7 @@ type TemplateUpdateDto struct {
 }
 
 type TemplateSaveAsDTO struct {
-	Canvases []AnalysisCanvas `json:"canvases" validate:"required"`
+	Name      string           `json:"name" db:"name"`
+	CreatorID uuid.UUID        `json:"creatorId" db:"creator_id"`
+	Canvases  []AnalysisCanvas `json:"canvases" validate:"required"`
 }

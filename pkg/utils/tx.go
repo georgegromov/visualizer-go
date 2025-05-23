@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func withTx(ctx context.Context, db *sqlx.DB, fn func(*sqlx.Tx) error) error {
+func WithTx(ctx context.Context, db *sqlx.DB, fn func(*sqlx.Tx) error) error {
 	tx, err := db.BeginTxx(ctx, nil)
 	if err != nil {
 		return err

@@ -37,7 +37,7 @@ func (uc *templateUsecase) Update(ctx context.Context, templateID uuid.UUID, dto
 	return uc.repo.Update(ctx, templateID, dto)
 }
 
-func (uc *templateUsecase) SaveAs(ctx context.Context, dto *templates.TemplateSaveAsDTO) error {
+func (uc *templateUsecase) SaveAs(ctx context.Context, dto *templates.TemplateSaveAsDTO) (uuid.UUID, error) {
 
 	// Создать шаблон, получить templateID
 	// err := uc.Create(ctx)
@@ -76,5 +76,5 @@ func (uc *templateUsecase) SaveAs(ctx context.Context, dto *templates.TemplateSa
 	// 	}
 	// }
 
-	return nil
+	return uc.repo.SaveAs(ctx, dto)
 }

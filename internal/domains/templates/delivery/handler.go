@@ -122,7 +122,9 @@ func (h *templateHandler) HandleCreate(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, http.StatusCreated, "Template created successfully", templateID)
+	response.Success(ctx, http.StatusCreated, "Template created successfully", gin.H{
+		"templateId": templateID,
+	})
 }
 
 // updateTemplate godoc
@@ -163,12 +165,12 @@ func (h *templateHandler) HandleUpdate(ctx *gin.Context) {
 func (h *templateHandler) HandleSaveAs(ctx *gin.Context) {
 	const op = "handler.Handler.UpdateTemplateHandler"
 
-	// user, err := utils.GetUserFromCtx(ctx)
-	// if err != nil {
-	// 	h.log.Error(fmt.Sprintf("%s: no user set in context: %v", op, err))
-	// 	response.Error(ctx, http.StatusUnauthorized, "Unauthorized", nil)
-	// 	return
-	// }
+	user, err := utils.GetUserFromCtx(ctx)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: no user set in context: %v", op, err))
+		response.Error(ctx, http.StatusUnauthorized, "Unauthorized", nil)
+		return
+	}
 
 	input := &templates.TemplateSaveAsDTO{}
 	if err := utils.ReadRequestBody(ctx, input); err != nil {
@@ -177,9 +179,17 @@ func (h *templateHandler) HandleSaveAs(ctx *gin.Context) {
 		return
 	}
 
-	_ = h.templateUC.SaveAs(ctx.Request.Context(), input)
+	input.Name = "Untitled"
+	input.CreatorID = user.ID
 
-	fmt.Print("input:", input)
+	templateID, err := h.templateUC.SaveAs(ctx.Request.Context(), input)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: failed to save as template: %v", op, err))
+		response.Error(ctx, http.StatusInternalServerError, "Failed to save as template", nil)
+		return
+	}
 
-	response.Success(ctx, http.StatusOK, "Template saved successfully", nil)
+	response.Success(ctx, http.StatusOK, "Template saved successfully", gin.H{
+		"templateId": templateID,
+	})
 }

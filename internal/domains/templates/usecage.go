@@ -11,5 +11,5 @@ type Usecase interface {
 	GetByID(ctx context.Context, templateID uuid.UUID) (*Template, error)
 	Create(ctx context.Context, template *Template) (uuid.UUID, error)
 	Update(ctx context.Context, templateID uuid.UUID, dto *TemplateUpdateDto) error
-	SaveAs(ctx context.Context, dto *TemplateSaveAsDTO) error
+	SaveAs(ctx context.Context, dto *TemplateSaveAsDTO) (uuid.UUID, error)
 }

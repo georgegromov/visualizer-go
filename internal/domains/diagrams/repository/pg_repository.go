@@ -87,6 +87,12 @@ func (r *diagramRepo) Update(ctx context.Context, diagramID uuid.UUID, dto *diag
 		argId++
 	}
 
+	if dto.Content != nil {
+		setValues = append(setValues, fmt.Sprintf("content=$%d", argId))
+		args = append(args, *dto.Content)
+		argId++
+	}
+
 	// TODO if content
 
 	setValues = append(setValues, "updated_at=NOW()")

@@ -1,4 +1,4 @@
-create table users (
+create table if not exists users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   username VARCHAR(32) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
@@ -6,7 +6,8 @@ create table users (
   updated_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
-create table templates (
+
+create table if not exists templates (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	name VARCHAR(64),
   description VARCHAR(255),
@@ -18,7 +19,8 @@ create table templates (
 	
 	CONSTRAINT fk_template_creator FOREIGN KEY (creator_id) REFERENCES users(id)
 );
-create table canvases (
+
+create table if not exists canvases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT,
   description TEXT,
@@ -27,7 +29,8 @@ create table canvases (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_canvas_template FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE CASCADE
 );
-create table charts (
+
+create table if not exists charts (
   	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   	name TEXT,
   	type TEXT NOT NULL,
@@ -36,7 +39,8 @@ create table charts (
   	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   	CONSTRAINT fk_chart_canvas FOREIGN KEY (canvas_id) REFERENCES canvases(id) ON DELETE CASCADE
 );
-create table measurements (
+
+create table if not exists measurements (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	content jsonb NOT NULL,
 	chart_id UUID NOT NULL,
@@ -44,7 +48,8 @@ create table measurements (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_chart_measurement FOREIGN KEY (chart_id) REFERENCES charts(id) ON DELETE CASCADE
 );
-create table dashboards (
+
+create table if not exists dashboards (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	name VARCHAR(64) NOT NULL,
   description VARCHAR(255),
@@ -61,4 +66,12 @@ create table dashboards (
 	
 	CONSTRAINT fk_dashboard_template FOREIGN KEY (template_id) REFERENCES templates(id),
   CONSTRAINT fk_dashboard_creator FOREIGN KEY (creator_id) REFERENCES users(id)
+);
+
+create table if not exists diagrams (
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	name VARCHAR(64) NOT NULL,
+	content json,
+	updated_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

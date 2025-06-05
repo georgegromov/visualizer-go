@@ -132,8 +132,6 @@ func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, d
 	args := make([]interface{}, 0)
 	argId := 1
 
-	fmt.Println("dto", dto)
-
 	if dto.Name != nil {
 		setValues = append(setValues, fmt.Sprintf("name=$%d", argId))
 		args = append(args, *dto.Name)

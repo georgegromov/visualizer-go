@@ -74,7 +74,7 @@ func (h *measurementHandler) HandleUpdate(c *gin.Context) {
 
 	input := &measurements.MeasurementUpdateDTO{}
 
-	if err := utils.ReadRequestBody(c, &input); err != nil {
+	if err := utils.ReadRequestBody(c, input); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, err.Error(), err)
 		return

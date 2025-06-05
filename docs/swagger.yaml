@@ -80,6 +80,33 @@ paths:
       summary: Get dashboards by template id
       tags:
       - Dashboards
+  /diagrams:
+    get:
+      responses: {}
+      summary: Get all diagrams
+      tags:
+      - Diagrams
+    post:
+      responses: {}
+      summary: Create diagram
+      tags:
+      - Diagrams
+  /diagrams/{id}:
+    delete:
+      responses: {}
+      summary: Delete diagram
+      tags:
+      - Diagrams
+    get:
+      responses: {}
+      summary: Get diagram by id
+      tags:
+      - Diagrams
+    patch:
+      responses: {}
+      summary: Update diagram
+      tags:
+      - Diagrams
   /templates:
     get:
       consumes:

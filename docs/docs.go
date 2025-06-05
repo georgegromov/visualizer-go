@@ -91,6 +91,45 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/diagrams": {
+            "get": {
+                "tags": [
+                    "Diagrams"
+                ],
+                "summary": "Get all diagrams",
+                "responses": {}
+            },
+            "post": {
+                "tags": [
+                    "Diagrams"
+                ],
+                "summary": "Create diagram",
+                "responses": {}
+            }
+        },
+        "/diagrams/{id}": {
+            "get": {
+                "tags": [
+                    "Diagrams"
+                ],
+                "summary": "Get diagram by id",
+                "responses": {}
+            },
+            "delete": {
+                "tags": [
+                    "Diagrams"
+                ],
+                "summary": "Delete diagram",
+                "responses": {}
+            },
+            "patch": {
+                "tags": [
+                    "Diagrams"
+                ],
+                "summary": "Update diagram",
+                "responses": {}
+            }
+        },
         "/templates": {
             "get": {
                 "description": "Returns all templates",

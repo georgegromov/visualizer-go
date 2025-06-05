@@ -7,21 +7,38 @@ import (
 	"net/http"
 	"visualizer-go/internal/api/middlewares"
 	"visualizer-go/internal/config"
+
+	// canvases
 	canvash "visualizer-go/internal/domains/canvases/delivery"
 	canvaspg "visualizer-go/internal/domains/canvases/repository"
 	canvasuc "visualizer-go/internal/domains/canvases/usecase"
+
+	// charts
 	charth "visualizer-go/internal/domains/charts/delivery"
 	chartpg "visualizer-go/internal/domains/charts/repository"
 	chartuc "visualizer-go/internal/domains/charts/usecase"
+
+	// dashboards
 	dashboardh "visualizer-go/internal/domains/dashboards/delivery"
 	dashboardpg "visualizer-go/internal/domains/dashboards/repository"
 	dashboarduc "visualizer-go/internal/domains/dashboards/usecase"
+
+	// diagrams
+	diagramh "visualizer-go/internal/domains/diagrams/delivery"
+	diagrampg "visualizer-go/internal/domains/diagrams/repository"
+	diagramuc "visualizer-go/internal/domains/diagrams/usecase"
+
+	// measurements
 	measurementh "visualizer-go/internal/domains/measurements/delivery"
 	measurementpg "visualizer-go/internal/domains/measurements/repository"
 	measurementuc "visualizer-go/internal/domains/measurements/usecase"
+
+	// templates
 	templateh "visualizer-go/internal/domains/templates/delivery"
 	templatepg "visualizer-go/internal/domains/templates/repository"
 	templateuc "visualizer-go/internal/domains/templates/usecase"
+
+	// users
 	userh "visualizer-go/internal/domains/users/delivery"
 	userpg "visualizer-go/internal/domains/users/repository"
 	useruc "visualizer-go/internal/domains/users/usecase"
@@ -59,6 +76,7 @@ func (s *Server) Register() {
 	chartRepository := chartpg.NewChartRepo(s.log, s.pgdb)
 	measurementRepository := measurementpg.NewMeasurementRepo(s.log, s.pgdb)
 	dashboardRepository := dashboardpg.NewDashboardRepo(s.log, s.pgdb)
+	diagramRepository := diagrampg.NewDiagramRepo(s.log, s.pgdb)
 
 	// init managers
 	jwtManager := jwt_manager.NewJwtManager(s.config.Jwt)
@@ -70,6 +88,7 @@ func (s *Server) Register() {
 	chartUsecase := chartuc.NewChartService(s.log, chartRepository)
 	measurementUsecase := measurementuc.NewMeasurementUsecase(s.log, measurementRepository)
 	dashboardUsecase := dashboarduc.NewVisualizationService(s.log, dashboardRepository)
+	diagramUsecase := diagramuc.NewDiagramUsecase(s.log, diagramRepository)
 
 	// init handlers
 	userHandler := userh.NewUserHandler(s.log, userUsecase)
@@ -78,6 +97,7 @@ func (s *Server) Register() {
 	chartHandler := charth.NewChartHandler(s.log, chartUsecase)
 	measurementHandler := measurementh.NewCanvasHandler(s.log, measurementUsecase)
 	dashboardHandler := dashboardh.NewDashboardHandler(s.log, dashboardUsecase)
+	diagramHandler := diagramh.NewDiagramHandler(s.log, diagramUsecase)
 
 	s.handler.Use(gin.Recovery(), gin.Logger(), middlewares.CorsMiddleware(s.config.Origin))
 
@@ -150,6 +170,16 @@ func (s *Server) Register() {
 				dashboards.GET("/t/:id", dashboardHandler.HandleGetByTemplateId)
 			}
 
+			// define diagrams group route /api/diagrams
+			diagrams := protected.Group("/diagrams")
+			{
+				diagrams.POST("", diagramHandler.HandleCreate)
+				diagrams.GET("", diagramHandler.HandleGet)
+				diagrams.GET("/:id", diagramHandler.HandleGetById)
+				diagrams.PATCH("/:id", diagramHandler.HandleUpdate)
+				diagrams.DELETE("/:id", diagramHandler.HandleDelete)
+			}
+
 			// get /api/dashboards/:id/metrics
 			api.PATCH("/dashboards/:id/metrics", dashboardHandler.HandleMetrics)
 			// get /api/dashboards/share/:id
@@ -184,7 +214,6 @@ func (s *Server) MustStart() {
 	if err := s.httpServer.ListenAndServe(); err != nil {
 		panic(fmt.Errorf("%s: %w", op, err))
 	}
-
 }
 
 func (s *Server) Stop(ctx context.Context) error {

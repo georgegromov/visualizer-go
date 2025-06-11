@@ -58,6 +58,26 @@ func (h *chartHandler) HandleGetByCanvasId(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Charts fetched successfully", charts)
 }
 
+func (h *chartHandler) HandleGetByID(c *gin.Context) {
+	const op = "handler.Handler.getChartByIdHandler"
+
+	chartID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusBadRequest, ErrInvalidChartId.Error(), err)
+		return
+	}
+
+	chart, err := h.chartUC.GetByID(c.Request.Context(), chartID)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusInternalServerError, ErrFailedToFetchCharts.Error(), err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Chart fetched successfully", chart)
+}
+
 func (h *chartHandler) HandleCreate(c *gin.Context) {
 	const op = "handler.Handler.createChartHanlder"
 

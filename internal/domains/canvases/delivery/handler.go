@@ -49,6 +49,26 @@ func (h *canvasHandler) HandleCreate(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "Canvas created successfully", gin.H{})
 }
 
+func (h *canvasHandler) HandleGetByID(c *gin.Context) {
+	const op = "handler.Handler.getCanvasByIDHandler"
+
+	canvasID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusBadRequest, err.Error(), err)
+		return
+	}
+
+	canvas, err := h.canvasUC.GetCanvasByID(c.Request.Context(), canvasID)
+	if err != nil {
+		h.log.Error(fmt.Sprintf("%s: %v", op, err))
+		response.Error(c, http.StatusInternalServerError, err.Error(), err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Canvas fetched successfully", canvas)
+}
+
 func (h *canvasHandler) HandleGetByTemplateId(c *gin.Context) {
 
 	const op = "handler.Handler.getCanvasByTemplateIdHandler"

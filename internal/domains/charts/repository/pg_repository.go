@@ -20,6 +20,21 @@ func NewChartRepo(log *slog.Logger, db *sqlx.DB) charts.Repository {
 	return &chartRepo{log: log, db: db}
 }
 
+// Get By ID
+func (c *chartRepo) GetByID(ctx context.Context, chartID uuid.UUID) (*charts.Chart, error) {
+	const op = "repository.ChartRepo.GetByID"
+
+	query := `SELECT * FROM charts WHERE id = $1`
+
+	chart := &charts.Chart{}
+	if err := c.db.GetContext(ctx, chart, query, chartID); err != nil {
+		c.log.Error(fmt.Sprintf("%s: an error occured while selecting chart: %v", op, err))
+		return nil, err
+	}
+
+	return chart, nil
+}
+
 // Get By Canvas ID
 func (c *chartRepo) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]*charts.Chart, error) {
 	const op = "repository.ChartRepo.GetByCanvasID"

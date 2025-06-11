@@ -21,6 +21,10 @@ func (c *canvasUsecase) Create(ctx context.Context, dto canvases.CanvasCreateDto
 	return c.repo.Create(ctx, dto)
 }
 
+func (c *canvasUsecase) GetCanvasByID(ctx context.Context, canvasID uuid.UUID) (*canvases.Canvas, error) {
+	return c.repo.GetCanvasByID(ctx, canvasID)
+}
+
 func (c *canvasUsecase) GetCanvasesByTemplateID(ctx context.Context, templateID uuid.UUID) ([]*canvases.Canvas, error) {
 	return c.repo.GetCanvasesByTemplateID(ctx, templateID)
 }

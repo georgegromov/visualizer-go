@@ -101,11 +101,23 @@ func (s *Server) Register() {
 
 	s.handler.Use(gin.Recovery(), gin.Logger(), middlewares.CorsMiddleware(s.config.Origin))
 
+	s.handler.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "The requested resource was not found",
+		})
+	})
+
 	api := s.handler.Group("/api")
 	{
 		// get /api/status
 		api.GET("/status", func(ctx *gin.Context) {
 			ctx.String(http.StatusOK, "ok")
+		})
+		// get /api/unauthorized
+		api.GET("/unauthorized", func(ctx *gin.Context) {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": "The requested resource has not been applied",
+			})
 		})
 		// define group route /api/auth
 		auth := api.Group("/auth")
@@ -137,6 +149,7 @@ func (s *Server) Register() {
 			canvases := protected.Group("/canvases")
 			{
 				canvases.GET("", canvasHandler.HandleGetByTemplateId)
+				canvases.GET("/:id", canvasHandler.HandleGetByID)
 				canvases.POST("", canvasHandler.HandleCreate)
 				canvases.PATCH("/:id", canvasHandler.HandleUpdate)
 				canvases.DELETE("/:id", canvasHandler.HandleDelete)
@@ -145,6 +158,7 @@ func (s *Server) Register() {
 			charts := protected.Group("/charts")
 			{
 				charts.GET("", chartHandler.HandleGetByCanvasId)
+				charts.GET("/:id", chartHandler.HandleGetByID)
 				charts.POST("", chartHandler.HandleCreate)
 				charts.PATCH("/:id", chartHandler.HandleUpdate)
 				charts.DELETE("/:id", chartHandler.HandleDelete)

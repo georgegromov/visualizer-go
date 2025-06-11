@@ -17,6 +17,10 @@ func NewChartService(log *slog.Logger, repo charts.Repository) charts.Usecase {
 	return &chartUsecase{log: log, repo: repo}
 }
 
+func (c *chartUsecase) GetByID(ctx context.Context, chartID uuid.UUID) (*charts.Chart, error) {
+	return c.repo.GetByID(ctx, chartID)
+}
+
 func (c *chartUsecase) GetByCanvasID(ctx context.Context, canvasID uuid.UUID) ([]*charts.Chart, error) {
 	return c.repo.GetByCanvasID(ctx, canvasID)
 }

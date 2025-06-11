@@ -34,6 +34,20 @@ func (c *canvasRepo) Create(ctx context.Context, dto canvases.CanvasCreateDto) e
 	return nil
 }
 
+func (c *canvasRepo) GetCanvasByID(ctx context.Context, canvasID uuid.UUID) (*canvases.Canvas, error) {
+	const op = "repository.CanvasRepo.GetCanvasByID"
+
+	query := `SELECT * FROM canvases WHERE id = $1`
+	canvas := &canvases.Canvas{}
+
+	if err := c.db.GetContext(ctx, canvas, query, canvasID); err != nil {
+		c.log.Error(fmt.Sprintf("%s: failed to fetch canvas: %v", op, err))
+		return nil, err
+	}
+
+	return canvas, nil
+}
+
 func (c *canvasRepo) GetCanvasesByTemplateID(ctx context.Context, templateID uuid.UUID) ([]*canvases.Canvas, error) {
 	const op = "repository.CanvasRepo.GetCanvasesByTemplateID"
 
@@ -42,14 +56,12 @@ func (c *canvasRepo) GetCanvasesByTemplateID(ctx context.Context, templateID uui
 	canvases := []*canvases.Canvas{}
 	if err := c.db.SelectContext(ctx, &canvases, query, templateID); err != nil {
 		c.log.Error(fmt.Sprintf("%s: failed to fetch canvases: %v", op, err))
-		// TODO: завернуть ошибку в кастомную
 		return nil, err
 	}
 
 	return canvases, nil
 }
-// description
-// description
+
 func (c *canvasRepo) Update(ctx context.Context, canvasID uuid.UUID, dto canvases.CanvasUpdateDto) error {
 	const op = "repository.CanvasRepo.Update"
 

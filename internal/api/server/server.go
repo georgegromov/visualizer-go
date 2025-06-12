@@ -59,6 +59,11 @@ type Server struct {
 }
 
 func New(log *slog.Logger, config *config.Config, pgdb *sqlx.DB) *Server {
+
+	if config.Env == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	return &Server{
 		log:     log,
 		config:  config,

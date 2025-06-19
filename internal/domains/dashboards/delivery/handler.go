@@ -144,7 +144,7 @@ func (h *dashboardHandler) HandleUpdate(c *gin.Context) {
 		return
 	}
 
-	var visualizationUpdateDto dashboards.VisualizationUpdateDto
+	var visualizationUpdateDto dashboards.DashboardUpdateDto
 	if err = c.ShouldBindJSON(&visualizationUpdateDto); err != nil {
 		h.log.Error(fmt.Sprintf("%s: %v", op, err))
 		response.Error(c, http.StatusBadRequest, ErrVisualizationInvalidRequestData.Error(), err)

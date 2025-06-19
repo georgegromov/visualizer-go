@@ -46,7 +46,7 @@ func (vs *dashboardUsecase) Create(ctx context.Context, dashboard *dashboards.Da
 	dashboard.Name = "Untitled"
 	return vs.repo.Create(ctx, dashboard)
 }
-func (vs *dashboardUsecase) Update(ctx context.Context, visualizationID uuid.UUID, dto dashboards.VisualizationUpdateDto) error {
+func (vs *dashboardUsecase) Update(ctx context.Context, visualizationID uuid.UUID, dto dashboards.DashboardUpdateDto) error {
 	return vs.repo.Update(ctx, visualizationID, dto)
 }
 

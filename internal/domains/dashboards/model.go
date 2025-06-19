@@ -10,6 +10,7 @@ type Dashboard struct {
 	ID           uuid.UUID  `json:"id" db:"id"`
 	Name         string     `json:"name" db:"name"`
 	Description  *string    `json:"description" db:"description"`
+	Tenant       string     `json:"tenant" db:"tenant"`
 	IsPublished  bool       `json:"published" db:"is_published"`
 	ShareID      uuid.UUID  `json:"shareId" db:"share_id"`
 	CreatorID    uuid.UUID  `json:"creatorId" db:"creator_id"`

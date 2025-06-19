@@ -125,7 +125,7 @@ func (r *dashboardRepo) Create(ctx context.Context, dashboard *dashboards.Dashbo
 	return dashboardId, nil
 }
 
-func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, dto dashboards.VisualizationUpdateDto) error {
+func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, dto dashboards.DashboardUpdateDto) error {
 	const op = "repository.dashboardRepo.Update"
 
 	setValues := make([]string, 0)
@@ -141,12 +141,6 @@ func (r *dashboardRepo) Update(ctx context.Context, visualizationID uuid.UUID, d
 	if dto.Description != nil {
 		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
 		args = append(args, *dto.Description)
-		argId++
-	}
-
-	if dto.Client != nil {
-		setValues = append(setValues, fmt.Sprintf("client=$%d", argId))
-		args = append(args, *dto.Client)
 		argId++
 	}
 

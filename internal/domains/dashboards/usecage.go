@@ -12,7 +12,7 @@ type Usecase interface {
 	GetByID(ctx context.Context, visualizationID uuid.UUID) (*Dashboard, error)
 	GetByShareID(ctx context.Context, shareID uuid.UUID) (*Dashboard, error)
 	Create(ctx context.Context, dashboard *Dashboard) (uuid.UUID, error)
-	Update(ctx context.Context, visualizationID uuid.UUID, dto VisualizationUpdateDto) error
+	Update(ctx context.Context, visualizationID uuid.UUID, dto DashboardUpdateDto) error
 	IncrementViewCount(ctx context.Context, visualizationID uuid.UUID) error
 	Delete(ctx context.Context, visualizationID uuid.UUID) error
 }

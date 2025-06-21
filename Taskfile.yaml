@@ -12,7 +12,7 @@ tasks:
   build:
     desc: 'build in .exe'
     cmds:
-      - go build -o visualizer.exe ./cmd/main.go
+      - go build -o app.exe ./cmd/main.go
   swag:
     desc: 'generate swagger doc'
     cmds:

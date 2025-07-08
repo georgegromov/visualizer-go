@@ -203,15 +203,17 @@ func (s *Server) Register() {
 			api.PATCH("/dashboards/:id/metrics", dashboardHandler.HandleMetrics)
 			// get /api/dashboards/share/:id
 			api.GET("/dashboards/share/:id", dashboardHandler.HandleGetByShareId)
+
+			if s.config.Env != "prod" {
+				protected.GET("/swagger/*any", func(ctx *gin.Context) {
+					if ctx.Request.RequestURI == "/swagger/" {
+						ctx.Redirect(302, "/swagger/index.html")
+					}
+					ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("http://localhost:8888/swagger/doc.json"))(ctx)
+				})
+			}
 		}
 	}
-
-	s.handler.GET("/swagger/*any", func(ctx *gin.Context) {
-		if ctx.Request.RequestURI == "/swagger/" {
-			ctx.Redirect(302, "/swagger/index.html")
-		}
-		ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("http://localhost:8888/swagger/doc.json"))(ctx)
-	})
 
 	s.httpServer = &http.Server{
 		Addr:           ":" + s.config.Server.Port,

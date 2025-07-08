@@ -53,7 +53,11 @@ create table if not exists dashboards (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	name VARCHAR(64) NOT NULL,
   description VARCHAR(255),
+<<<<<<< HEAD
 	tenant TEXT NOT NULL DEFAULT 'IMBY' CHECK (tenant IN ('IMBY', 'EF', 'LT')),
+=======
+	tenant TEXT NOT NULL DEFAULT 'Imby' CHECK (tenant IN ('Imby', 'EF', 'LT')),
+>>>>>>> 1c445b1c5e16929e5b835c1cd494872961e325c6
 	is_published BOOL NOT NULL DEFAULT false,
 	share_id UUID NOT NULL DEFAULT gen_random_uuid(),
 	creator_id UUID NOT NULL,
